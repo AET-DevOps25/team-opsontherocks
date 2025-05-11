@@ -1,54 +1,90 @@
-# React + TypeScript + Vite
+# Client Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Vite + React + TypeScript + Tailwind CSS project using \[shadcn/ui] components and animations via `tailwindcss-animate`.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## Expanding the ESLint configuration
+* **Vite**: Fast development server and build tool.
+* **React (v19)**: Component-driven UI library.
+* **TypeScript**: Typed JavaScript for safety and clarity.
+* **Tailwind CSS**: Utility-first CSS framework.
+* **shadcn/ui**: Accessible, fully-typed React components styled with Tailwind.
+* **tailwindcss-animate**: Plugin providing ready-to-use animation utilities.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Adding shadcn/ui Components
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Since the `components/ui` folder is already initialized when you cloned this repo, you can skip any setup steps and jump straight to adding or customizing components:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Add a new component** (e.g., a button):
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+   ```bash
+   npx shadcn@latest add button
+   ```
+
+   Replace `toast` with any supported component name.
+
+2. **Import and use** in your code:
+
+   ```tsx
+   import { Button } from '@/components/ui/button'
+
+   function Example() {
+     return <Button>Click me</Button>
+   }
+   ```
+
+3. **Customize** variants or design tokens by editing files in `components/ui` or extending your Tailwind config.
+
+---
+
+## Running Locally (Without Docker)
+
+1. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+   > **Note:** You can also run `npm ci` in CI/CD environments for faster, deterministic installs from `package-lock.json`.
+
+2. **Start the dev server**:
+
+   ```bash
+   npm run dev
+   ```
+
+3. **Open** your browser at `http://localhost:5173` (default Vite port).
+
+4. **Build for production**:
+
+   ```bash
+   npm run build
+   ```
+
+5. **Preview** the production build:
+
+   ```bash
+   npm run preview
+   ```
+
+---
+
+## Running with Docker
+
+1. **Build the image**:
+
+   ```bash
+   docker build -t client .
+   ```
+2. **Run the container**:
+
+   ```bash
+   docker run --rm -p 8080:8080 client
+   ```
+3. **Open** your browser at `http://localhost:8080`.
+
+

@@ -2,13 +2,12 @@ import {useState} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './index.css'
-import {Button} from "@/components/ui/button" // contains only Tailwind layers
+import {Button} from "@/components/ui/button"
 
 function App() {
     const [count, setCount] = useState(0)
 
     return (
-        // Subtle gradient white background for a modern feel
         <div
             className="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-900 flex flex-col items-center justify-center p-6 space-y-8">
             <div
