@@ -101,14 +101,38 @@ Individuals interested in personal development, emotional wellness, and self-ref
 - **Progress Visualization**
    - As a user, I want to view past weekly reports in visual charts, so I can track my emotional and personal progress over time.
 
+   
+# Initial System Structure
+
+The system will be divided into the following technical components:
+
+- **Server**
+   - Implemented using **Spring Boot** as a **RESTful API** backend to handle authentication, category and reflection management, report generation, and communication with the GenAI service.
+
+- **Client**
+   - Built using **React** with **Vite** for fast development and bundling.
+   - Styled using **Tailwind CSS**.
+   - UI components will be provided by **shadcn/ui** for a modern and accessible interface.
+
+- **GenAI Service**
+   - A separate microservice written in **Python**, utilizing **LangChain** to provide personalized AI feedback and empathetic conversational interactions.
+
+- **Database**
+   - **PostgreSQL** will be used for persistent storage of user accounts, categories, reflections, and generated reports.
+
+- **Containerization**
+   - All components will be containerized using **Docker** to ensure consistency across development, testing, and deployment environments.
+
+
 # Diagrams
 
 ![Use Case Diagram](/images/UseCaseDiagram.png)
 Use Case Diagram
 
 
-![Component Diagram](/images/UseCaseDiagram.png)
+![Component Diagram](/images/ComponentDiagram.png)
 Component Diagram
+
 
 
 ![Analysis Object Model](/images/AnalysisObjectModel.png)
