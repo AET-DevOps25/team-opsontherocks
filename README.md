@@ -10,7 +10,7 @@ The application’s main functionality is to enable users to:
 
 AI will analyze both current and past data to provide actionable, mostly positive feedback and tailored suggestions.
 
-![Wheel of Life](/images/wheel%20of%20life.png)
+![Wheel of Life](/images/WheelOfLife.png)
 
 ---
 
@@ -100,3 +100,9 @@ Individuals interested in personal development, emotional wellness, and self-ref
 
 - **Progress Visualization**
    - As a user, I want to view past weekly reports in visual charts, so I can track my emotional and personal progress over time.
+
+# Diagrams
+
+![Use Case Diagram](/images/UseCaseDiagram.png)
+![Component Diagram](/images/UseCaseDiagram.png)
+![Analysis Object Model](/images/AnalysisObjectModel.png)
