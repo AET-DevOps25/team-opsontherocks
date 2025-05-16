@@ -104,5 +104,12 @@ Individuals interested in personal development, emotional wellness, and self-ref
 # Diagrams
 
 ![Use Case Diagram](/images/UseCaseDiagram.png)
+Use Case Diagram
+
+
 ![Component Diagram](/images/UseCaseDiagram.png)
+Component Diagram
+
+
 ![Analysis Object Model](/images/AnalysisObjectModel.png)
+Analysis Object Model
