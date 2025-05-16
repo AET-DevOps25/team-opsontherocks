@@ -81,3 +81,22 @@ Individuals interested in personal development, emotional wellness, and self-ref
     - Over time, reviews trend visualizations to see improvements.
 
 ---
+## Initial Product Backlog
+
+- **User Authentication**
+   - As a user, I want to log in and log out of my account, so I can have access to stored data.
+
+- **Life Category Management**
+   - As a user, I want to add new and remove existing life categories, so my wheel of life reflects what truly matters in my life.
+
+- **Weekly Reflection Logging**
+   - As a user, I want to create weekly reflections by rating my life categories from 1-10 and adding a reflective note, so I can reflect and have visual evaluation of my week in a structured and visual way.
+
+- **Personalized AI Feedback**
+   - As a user, I want to receive improvement or encouragement as personalized AI feedback report, so I can have a more balanced fulfilling life.
+
+- **AI Assistant Interaction**
+   - As a user, I want to choose to interact with an AI assistant, so I can unleash the emotions that I am reluctant to share with other people and get helpful, empathic guidance.
+
+- **Progress Visualization**
+   - As a user, I want to view past weekly reports in visual charts, so I can track my emotional and personal progress over time.
