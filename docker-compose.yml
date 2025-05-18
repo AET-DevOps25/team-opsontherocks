@@ -2,19 +2,33 @@ services:
   client:
     build:
       context: ./client
+      args:
+        VITE_SERVER_URL: "http://localhost:8080"
+        VITE_GENAI_URL: "http://localhost:5001"
     ports:
       - "5173:5173"
+    depends_on:
+      - wheel-of-life
+      - genai
+    networks:
+      - app-network
 
   wheel-of-life:
     build:
       context: ./server/wheel-of-life
     ports:
       - "8080:8080"
-    depends_on:
-      - genai
+    networks:
+      - app-network
 
   genai:
     build:
       context: ./genai
     ports:
       - "5001:5001"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

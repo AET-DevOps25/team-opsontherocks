@@ -1,12 +1,16 @@
 # Stage 1: build the Vite + React app
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package metadata and install dependencies
 COPY package.json package-lock.json ./
 RUN npm ci --production=false
+
+ARG VITE_SERVER_URL
+ARG VITE_GENAI_URL
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
+ENV VITE_GENAI_URL=${VITE_GENAI_URL}
 
 # Copy rest of the sources and build
 COPY . ./

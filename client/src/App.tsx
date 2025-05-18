@@ -1,11 +1,30 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './index.css'
-import {Button} from "@/components/ui/button"
+import {Button} from './components/ui/button'
 
 function App() {
     const [count, setCount] = useState(0)
+    const [wheelData, setWheelData] = useState<string | null>(null);
+
+    const apiBase = import.meta.env.VITE_SERVER_URL
+    if (!apiBase) {
+        console.warn('SERVER_URL is undefined – check your Docker Compose env settings')
+    }
+
+    useEffect(() => {
+        if (!apiBase) return;
+
+        fetch(apiBase)
+            .then(res => {
+                if (!res.ok) throw new Error(`API error ${res.status}`);
+                return res.text();           // ← use text()
+            })
+            .then(text => setWheelData(text))
+            .catch(console.error);
+    }, [apiBase]);
+
 
     return (
         <div
@@ -14,31 +33,27 @@ function App() {
                 className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                 <div className="flex items-center space-x-8">
                     <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
-                        <img
-                            src={viteLogo}
-                            alt="Vite logo"
-                            className="h-20 w-20"
-                        />
+                        <img src={viteLogo} alt="Vite logo" className="h-20 w-20"/>
                     </a>
                     <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
-                        <img
-                            src={reactLogo}
-                            alt="React logo"
-                            className="h-20 w-20 animate-spin-slow"
-                        />
+                        <img src={reactLogo} alt="React logo" className="h-20 w-20 animate-spin-slow"/>
                     </a>
                 </div>
 
                 <h1 className="text-6xl font-extrabold mt-6">Vite + React</h1>
 
                 <div className="w-full bg-gray-100 rounded-lg shadow p-4 mt-6 text-center">
-
-                    <Button
-                        className="mb-4"
-                        onClick={() => setCount((c) => c + 1)}
-                    >
+                    <Button className="mb-4" onClick={() => setCount(c => c + 1)}>
                         count is {count}
                     </Button>
+
+                    {wheelData ? (
+                        <pre className="text-left text-sm overflow-auto max-h-40 bg-white p-2 rounded">
+              {JSON.stringify(wheelData, null, 2)}
+            </pre>
+                    ) : (
+                        <p>Loading wheel-of-life data…</p>
+                    )}
 
                     <p className="text-sm text-gray-600 mt-2">
                         Edit <code className="bg-gray-200 px-1 rounded">src/App.tsx</code> and save to test HMR
