@@ -22,8 +22,8 @@ RUN npm install -g serve
 # Copy built files from the builder
 COPY --from=builder /app/dist ./dist
 
-# Expose the port
-EXPOSE 8080
+# Expose the desired port
+EXPOSE 5173
 
-# Serve the app statically
-CMD ["serve", "-s", "dist", "-l", "8080"]
+# Serve the app statically on port 5173
+CMD ["serve", "-s", "dist", "-l", "5173"]
