@@ -26,6 +26,8 @@ services:
       context: ./genai
     ports:
       - "5001:5001"
+    environment:
+      CLIENT_ORIGIN: "http://localhost:5173"
     networks:
       - app-network
 
