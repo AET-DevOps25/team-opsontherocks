@@ -1,4 +1,33 @@
 services:
+
+  db:
+    image: postgres:17.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: wheelOfLifeDB       # ← generic DB for everything
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana-oss:12.0.0
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana     # uses the declared volume
+    networks:
+      - app-network
+
   client:
     build:
       context: ./client
@@ -20,7 +49,6 @@ services:
       - "8080:8080"
     environment:
       CLIENT_ORIGIN: "http://localhost:5173"
-
     networks:
       - app-network
 
@@ -37,3 +65,8 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  db-data:
+  grafana-data:
+
