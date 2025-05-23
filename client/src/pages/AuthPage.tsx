@@ -1,7 +1,7 @@
 // src/pages/AuthPage.tsx
-import {Button} from '@/components/ui/button';
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -9,7 +9,7 @@ interface AuthPageProps {
     onLoginSuccess: () => void;
 }
 
-export default function AuthPage({onLoginSuccess}: AuthPageProps) {
+export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     const [tab, setTab] = useState<'login' | 'register'>('login');
     const [email, setEmail] = useState('');
     const [password, setPass] = useState('');
@@ -22,30 +22,35 @@ export default function AuthPage({onLoginSuccess}: AuthPageProps) {
         setError(null);
 
         const endpoint = tab === 'login' ? '/login' : '/register';
-        const payload: any = {email, password};
+        const payload: any = { email, password };
         if (tab === 'register') payload.name = name;
 
         try {
+            console.log(`${tab.toUpperCase()} request to`, `${serverBase}${endpoint}`, payload);
             const res = await fetch(`${serverBase}${endpoint}`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
 
+            console.log(`${tab.toUpperCase()} response status:`, res.status);
             if (!res.ok) {
                 const text = await res.text();
-                throw new Error(text);
+                throw new Error(text || `HTTP ${res.status}`);
             }
 
-            const {token} = await res.json();
-            localStorage.setItem('authToken', token);
+            const data = await res.json();
+            console.log(`${tab.toUpperCase()} succeeded, token:`, data.token);
 
-            console.log(`${tab} succeeded, redirecting…`);
-            // Call the success callback passed from App.tsx
+            // store token
+            localStorage.setItem('jwtToken', data.token);
+            console.log('Stored token in localStorage under jwtToken');
+
+            // notify parent and navigate
             onLoginSuccess();
-            navigate('/wheel'); // Navigate after state update
+            navigate('/wheel');
         } catch (err: any) {
-            console.error(`${tab} error:`, err);
+            console.error(`${tab.toUpperCase()} error:`, err);
             setError(err.message || 'Something went wrong');
         }
     };
@@ -57,16 +62,16 @@ export default function AuthPage({onLoginSuccess}: AuthPageProps) {
                     <button
                         onClick={() => setTab('login')}
                         className={`flex-1 py-3 text-lg font-medium transition-all duration-300 ease-in-out
-                                    ${tab === 'login' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-                                    rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+              ${tab === 'login' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+              rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
                     >
                         Login
                     </button>
                     <button
                         onClick={() => setTab('register')}
                         className={`flex-1 py-3 text-lg font-medium transition-all duration-300 ease-in-out
-                                    ${tab === 'register' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-                                    rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+              ${tab === 'register' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+              rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
                     >
                         Register
                     </button>

@@ -9,54 +9,66 @@ export default function WheelPage() {
     const [serverData, setServerData] = useState<string | null>(null)
     const [publicData, setPublicData] = useState<string | null>(null)
     const [clientData, setClientData] = useState<string | null>(null)
+    const [token] = useState<string | null>(() => localStorage.getItem('jwtToken'))
 
     const serverBase = import.meta.env.VITE_SERVER_URL
     const genAIBase = import.meta.env.VITE_GENAI_URL
 
-    if (!serverBase) {
-        console.warn('VITE_SERVER_URL is undefined – check your Docker Compose env settings')
-    }
-    if (!genAIBase) {
-        console.warn('VITE_GENAI_URL is undefined – check your Docker Compose env settings')
-    }
-
-    //TODO: Fix 403 error
     useEffect(() => {
+        console.log('Secured fetch effect:', {serverBase, token})
         if (!serverBase) return
+        if (!token) {
+            console.warn('No token present, skipping secured fetch')
+            return
+        }
 
-        fetch(`${serverBase}/secured`)
+        fetch(`${serverBase}/secured`, {
+            headers: {Authorization: `Bearer ${token}`},
+        })
             .then(res => {
+                console.log('Secured response status:', res.status)
                 if (!res.ok) throw new Error(`Server API error ${res.status}`)
                 return res.text()
             })
             .then(text => setServerData(text))
-            .catch(console.error)
-    }, [serverBase])
+            .catch(err => {
+                console.error('Error fetching secured:', err)
+                setServerData(null)
+            })
+    }, [serverBase, token])
 
-    // fetch public endpoint
     useEffect(() => {
+        console.log('Public fetch effect:', {serverBase})
         if (!serverBase) return
 
         fetch(`${serverBase}/public`)
             .then(res => {
+                console.log('Public response status:', res.status)
                 if (!res.ok) throw new Error(`Server API error ${res.status}`)
                 return res.text()
             })
             .then(text => setPublicData(text))
-            .catch(console.error)
+            .catch(err => {
+                console.error('Error fetching public:', err)
+                setPublicData(null)
+            })
     }, [serverBase])
 
-    // fetch from your genai (client) endpoint
     useEffect(() => {
+        console.log('GenAI fetch effect:', {genAIBase})
         if (!genAIBase) return
 
         fetch(`${genAIBase}/hello`)
             .then(res => {
+                console.log('GenAI response status:', res.status)
                 if (!res.ok) throw new Error(`GenAI API error ${res.status}`)
                 return res.text()
             })
             .then(text => setClientData(text))
-            .catch(console.error)
+            .catch(err => {
+                console.error('Error fetching GenAI:', err)
+                setClientData(null)
+            })
     }, [genAIBase])
 
     return (
