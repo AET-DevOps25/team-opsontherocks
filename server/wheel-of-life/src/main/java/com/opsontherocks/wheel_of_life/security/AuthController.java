@@ -1,16 +1,19 @@
 package com.opsontherocks.wheel_of_life.security;
 
 
-import com.opsontherocks.wheel_of_life.user.*;
-import com.opsontherocks.wheel_of_life.security.JwtUtil;
+import com.opsontherocks.wheel_of_life.user.User;
+import com.opsontherocks.wheel_of_life.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authManager;

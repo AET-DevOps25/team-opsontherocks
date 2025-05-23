@@ -31,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 public class AuthenticationTest {
 
-    private static final String REGISTER_URL = "/auth/register";
-    private static final String LOGIN_URL = "/auth/login";
+    private static final String REGISTER_URL = "/register";
+    private static final String LOGIN_URL = "/login";
     private static final String PUBLIC_URL = "/public";
     private static final String SECURED_URL = "/secured";
 
