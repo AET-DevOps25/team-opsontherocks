@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
     private final String clientOrigin =
             System.getenv().getOrDefault("CLIENT_ORIGIN", "http://localhost:5173");
 
@@ -15,6 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .addMapping("/**")
                 .allowedOrigins(clientOrigin)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                // allow the Authorization header (for sending JWTs)
+                .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
+                // expose it back to the client if you ever set tokens in the header
+                .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
 }

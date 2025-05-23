@@ -7,9 +7,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class HelloController {
+    static final String HELLO_PUBLIC = "Hello From Public Route";
+    static final String HELLO_SECURED = "Hello From Secured Route";
 
-    @GetMapping("/")
-    public ResponseEntity<String> hello() {
-        return new ResponseEntity<String>("Hello World", HttpStatus.OK);
+    /**
+     * Public endpoint, accessible without authentication.
+     */
+    @GetMapping("/public")
+    public ResponseEntity<String> helloPublic() {
+        return new ResponseEntity<>(HELLO_PUBLIC, HttpStatus.OK);
+    }
+
+    /**
+     * Secured endpoint, requires a valid JWT.
+     */
+    @GetMapping("/secured")
+    public ResponseEntity<String> helloSecured() {
+        return new ResponseEntity<>(HELLO_SECURED, HttpStatus.OK);
     }
 }
