@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,11 +115,23 @@ public class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(header().stringValues("Set-Cookie",
+                        org.hamcrest.Matchers.hasItem(org.hamcrest.Matchers.startsWith("JWT_TOKEN="))))
                 .andReturn();
 
-        String token = objectMapper.readTree(result.getResponse().getContentAsString())
-                .get("token").asText();
+        String setCookie = result.getResponse().getHeader("Set-Cookie");
+        assertThat(setCookie)
+                .as("Should set a cookie named JWT_TOKEN")
+                .startsWith("JWT_TOKEN=");
+
+        assert setCookie != null;
+        String token = Arrays.stream(setCookie.split(";"))
+                .map(String::trim)
+                .filter(part -> part.startsWith("JWT_TOKEN="))
+                .map(part -> part.substring("JWT_TOKEN=".length()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("JWT_TOKEN not found in Set-Cookie"));
+
         assertThat(jwtUtil.validateToken(token))
                 .as("JWT should be valid")
                 .isTrue();

@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react'
 import reactLogo from '../assets/react.svg';
-
 import viteLogo from '/vite.svg';
 import {Button} from '@/components/ui/button'
 
@@ -9,24 +8,17 @@ export default function WheelPage() {
     const [serverData, setServerData] = useState<string | null>(null)
     const [publicData, setPublicData] = useState<string | null>(null)
     const [clientData, setClientData] = useState<string | null>(null)
-    const [token] = useState<string | null>(() => localStorage.getItem('jwtToken'))
 
     const serverBase = import.meta.env.VITE_SERVER_URL
     const genAIBase = import.meta.env.VITE_GENAI_URL
 
     useEffect(() => {
-        console.log('Secured fetch effect:', {serverBase, token})
         if (!serverBase) return
-        if (!token) {
-            console.warn('No token present, skipping secured fetch')
-            return
-        }
 
         fetch(`${serverBase}/secured`, {
-            headers: {Authorization: `Bearer ${token}`},
+            credentials: 'include',
         })
             .then(res => {
-                console.log('Secured response status:', res.status)
                 if (!res.ok) throw new Error(`Server API error ${res.status}`)
                 return res.text()
             })
@@ -35,15 +27,13 @@ export default function WheelPage() {
                 console.error('Error fetching secured:', err)
                 setServerData(null)
             })
-    }, [serverBase, token])
+    }, [serverBase])
 
     useEffect(() => {
-        console.log('Public fetch effect:', {serverBase})
         if (!serverBase) return
 
         fetch(`${serverBase}/public`)
             .then(res => {
-                console.log('Public response status:', res.status)
                 if (!res.ok) throw new Error(`Server API error ${res.status}`)
                 return res.text()
             })
@@ -55,12 +45,10 @@ export default function WheelPage() {
     }, [serverBase])
 
     useEffect(() => {
-        console.log('GenAI fetch effect:', {genAIBase})
         if (!genAIBase) return
 
         fetch(`${genAIBase}/hello`)
             .then(res => {
-                console.log('GenAI response status:', res.status)
                 if (!res.ok) throw new Error(`GenAI API error ${res.status}`)
                 return res.text()
             })

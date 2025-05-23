@@ -4,6 +4,8 @@ package com.opsontherocks.wheel_of_life.security;
 import com.opsontherocks.wheel_of_life.user.User;
 import com.opsontherocks.wheel_of_life.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,7 +45,18 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
             );
             String token = jwtUtil.generateToken(req.getEmail());
-            return ResponseEntity.ok(new AuthResponse(token));
+
+            ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", token)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(jwtUtil.getValiditySeconds())
+                    .sameSite("Strict")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body("Login successful");
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid login");
         }

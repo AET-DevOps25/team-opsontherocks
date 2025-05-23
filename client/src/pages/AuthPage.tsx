@@ -1,4 +1,3 @@
-// src/pages/AuthPage.tsx
 import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,27 +25,19 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         if (tab === 'register') payload.name = name;
 
         try {
-            console.log(`${tab.toUpperCase()} request to`, `${serverBase}${endpoint}`, payload);
             const res = await fetch(`${serverBase}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(payload),
             });
 
-            console.log(`${tab.toUpperCase()} response status:`, res.status);
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || `HTTP ${res.status}`);
             }
 
-            const data = await res.json();
-            console.log(`${tab.toUpperCase()} succeeded, token:`, data.token);
-
-            // store token
-            localStorage.setItem('jwtToken', data.token);
-            console.log('Stored token in localStorage under jwtToken');
-
-            // notify parent and navigate
+            // On success, server sets HttpOnly cookie. No client-side storage needed.
             onLoginSuccess();
             navigate('/wheel');
         } catch (err: any) {

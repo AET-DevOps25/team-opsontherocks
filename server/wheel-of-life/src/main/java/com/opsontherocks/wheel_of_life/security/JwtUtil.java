@@ -37,4 +37,9 @@ public class JwtUtil {
     private Jws<Claims> parse(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
     }
+
+    public long getValiditySeconds() {
+        return validity / 1000;
+    }
+
 }
