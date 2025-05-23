@@ -4,9 +4,9 @@ services:
     image: postgres:17.5
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: wheelOfLifeDB       # ← generic DB for everything
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_DB: wheelOfLifeDB
     ports:
       - "5432:5432"
     volumes:
@@ -18,13 +18,29 @@ services:
     image: grafana/grafana-oss:12.0.0
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${POSTGRES_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:-admin}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
-      - grafana-data:/var/lib/grafana     # uses the declared volume
+      - grafana-data:/var/lib/grafana
+    networks:
+      - app-network
+
+  wheel-of-life:
+    build: ./server/wheel-of-life
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      CLIENT_ORIGIN: "http://localhost:5173"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/wheelOfLifeDB"
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
     networks:
       - app-network
 
@@ -42,19 +58,8 @@ services:
     networks:
       - app-network
 
-  wheel-of-life:
-    build:
-      context: ./server/wheel-of-life
-    ports:
-      - "8080:8080"
-    environment:
-      CLIENT_ORIGIN: "http://localhost:5173"
-    networks:
-      - app-network
-
   genai:
-    build:
-      context: ./genai
+    build: ./genai
     ports:
       - "5001:5001"
     environment:
@@ -69,4 +74,3 @@ networks:
 volumes:
   db-data:
   grafana-data:
-

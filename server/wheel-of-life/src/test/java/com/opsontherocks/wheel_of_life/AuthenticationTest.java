@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @AutoConfigureTestDatabase(replace = Replace.ANY)
-public class AuthControllerTest {
+public class AuthenticationTest {
 
     private static final String REGISTER_URL = "/auth/register";
     private static final String LOGIN_URL = "/auth/login";
