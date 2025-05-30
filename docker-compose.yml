@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   db:
@@ -28,19 +30,53 @@ services:
     networks:
       - app-network
 
+  authentication:
+    build:
+      context: ./server/authentication
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      # Postgres credentials (will be "admin"/"admin" by default)
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/wheelOfLifeDB"
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+
+      # Let Spring Boot know its HTTP port
+      SERVER_PORT: 8081
+
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      # (Optional) explicitly set the dialect if you ever need to override:
+      # SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+
+      # your other vars…
+      CLIENT_ORIGIN: "http://localhost:5173"
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - app-network
+
   wheel-of-life:
     build: ./server/wheel-of-life
     ports:
       - "8080:8080"
     depends_on:
       - db
+      - authentication
     environment:
-      CLIENT_ORIGIN: "http://localhost:5173"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/wheelOfLifeDB"
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+
+      # Expose on 8080
+      SERVER_PORT: 8080
+
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_ORIGIN: "http://localhost:5173"
     networks:
       - app-network
 
@@ -49,11 +85,13 @@ services:
       context: ./client
       args:
         VITE_SERVER_URL: "http://localhost:8080"
+        VITE_AUTH_URL: "http://localhost:8081"
         VITE_GENAI_URL: "http://localhost:5001"
     ports:
       - "5173:5173"
     depends_on:
       - wheel-of-life
+      - authentication
       - genai
     networks:
       - app-network
@@ -64,6 +102,7 @@ services:
       - "5001:5001"
     environment:
       CLIENT_ORIGIN: "http://localhost:5173"
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - app-network
 

@@ -1,3 +1,4 @@
 Flask==3.1.0
 Flask-Cors==6.0.0
 gunicorn
+PyJWT[crypto]==2.10.1
