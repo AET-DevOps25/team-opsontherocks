@@ -1,8 +1,7 @@
-// src/App.tsx
-import { Navigate, Route, Routes } from 'react-router-dom';
+import {Navigate, Route, Routes} from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
-import WheelPage from './pages/WheelPage';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
+import Dashboard from "@/pages/Dashboard.tsx";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -14,11 +13,10 @@ export default function App() {
             console.log('[App] Checking /users/me with credentials...');
             const res = await fetch(`${serverBase}/users/me`, {
                 method: 'GET',
-                mode: 'cors',              // allow CORS
-                credentials: 'include',    // send cookies
-                headers: { 'Accept': 'application/json' }
+                mode: 'cors',
+                credentials: 'include',
+                headers: {'Accept': 'application/json'}
             });
-            console.log('User authenticated');
             return res.ok;
         } catch (err) {
             console.log('User not authenticated');
@@ -33,7 +31,9 @@ export default function App() {
             const ok = await checkAuthStatus();
             if (mounted) setIsAuthenticated(ok);
         })();
-        return () => { mounted = false; };
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     if (isAuthenticated === null) {
@@ -49,14 +49,25 @@ export default function App() {
 
     return (
         <Routes>
-            <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess}/>}/>
             <Route
-                path="/wheel"
-                element={isAuthenticated ? <WheelPage /> : <Navigate to="/auth" replace />}
+                path="/"
+                element={
+                    isAuthenticated
+                        ? <Dashboard
+                            onCreateReport={() => {
+                                throw new Error('Function not implemented.');
+                            }}
+                            onOpenSettings={() => {
+                                throw new Error('Function not implemented.');
+                            }}
+                        />
+                        : <Navigate to="/auth" replace/>
+                }
             />
             <Route
-                path="/*"
-                element={<Navigate to={isAuthenticated ? '/wheel' : '/auth'} replace />}
+                path="*"
+                element={<Navigate to={isAuthenticated ? '/' : '/auth'} replace/>}
             />
         </Routes>
     );
