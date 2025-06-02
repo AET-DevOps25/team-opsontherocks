@@ -38,4 +38,3 @@ public class UserController {
     }
 
 }
-//TODO: connect this user to their categories, hena fi get request w mafrud ye return the users categories -> connect with category service
