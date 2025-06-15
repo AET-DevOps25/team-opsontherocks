@@ -76,7 +76,7 @@ public class UserCategoryController {
     @DeleteMapping("/{categoryId}")
     public void delete(@PathVariable Long categoryId,
                        @AuthenticationPrincipal String email) {
-        categoryService.deleteByUserEmail(categoryId, email);
+        categoryService.deleteByIdAndUserEmail(categoryId, email);
     }
 
 }

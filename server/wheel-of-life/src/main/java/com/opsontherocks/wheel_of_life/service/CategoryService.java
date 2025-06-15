@@ -22,7 +22,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public void deleteByUserEmail(Long id, String email){
+    public void deleteByIdAndUserEmail(Long id, String email){
         categoryRepository.deleteByIdAndUserEmail(id, email);
     }
 
