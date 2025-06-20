@@ -1,8 +1,8 @@
 import {Navigate, Route, Routes} from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import {useEffect, useState} from 'react';
-import Dashboard from "@/pages/Dashboard.tsx";
-import Settings from "@/pages/Settings.tsx";
+import Dashboard from "@/pages/Dashboard";
+import Settings from "@/pages/Settings";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 

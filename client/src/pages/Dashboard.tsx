@@ -7,9 +7,9 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { useTestEndpoints } from "@/api/testEndpoints.tsx";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useTestEndpoints } from "@/api/testEndpoints";
 
 interface DashboardProps {
     onCreateReport: () => void;
