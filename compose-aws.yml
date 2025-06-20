@@ -1,0 +1,151 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.4
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@tum.de"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    networks:
+      - app-network
+
+  db:
+    image: postgres:17.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: wheelOfLifeDB
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana-oss:12.0.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_HOST}`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+
+  authentication:
+    image: ghcr.io/${GITHUB_REPOSITORY}/authentication:latest
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/wheelOfLifeDB
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SERVER_PORT: 8081
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      CLIENT_ORIGIN: https://${CLIENT_HOST}
+      JWT_SECRET: ${JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=Host(`${AUTH_HOST}`)"
+      - "traefik.http.services.auth.loadbalancer.server.port=8081"
+      - "traefik.http.routers.auth.entrypoints=websecure"
+      - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wheel-of-life:
+    image: ghcr.io/${GITHUB_REPOSITORY}/wheel-of-life:latest
+    depends_on:
+      - db
+      - authentication
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/wheelOfLifeDB
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SERVER_PORT: 8080
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      CLIENT_ORIGIN: https://${CLIENT_HOST}
+      JWT_SECRET: ${JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`${API_HOST}`)"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  genai:
+    image: ghcr.io/${GITHUB_REPOSITORY}/genai:latest
+    environment:
+      CLIENT_ORIGIN: https://${CLIENT_HOST}
+      JWT_SECRET: ${JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.genai.rule=Host(`${GENAI_HOST}`)"
+      - "traefik.http.services.genai.loadbalancer.server.port=5001"
+      - "traefik.http.routers.genai.entrypoints=websecure"
+      - "traefik.http.routers.genai.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  client:
+    image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.rule=Host(`${CLIENT_HOST}`)"
+      - "traefik.http.services.client.loadbalancer.server.port=5173"
+      - "traefik.http.routers.client.entrypoints=websecure"
+      - "traefik.http.routers.client.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+  grafana-data:
+
+networks:
+  app-network:
+    driver: bridge
