@@ -1,54 +1,64 @@
-name: Deploy Current Docker Images
+name: Deploy current Docker images
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: AWS
+    environment: AWS
+
+    env:
+      EC2_PUBLIC_IP: ${{ vars.EC2_PUBLIC_IP }}
+      AWS_EC2_USER:  ${{ vars.AWS_EC2_USER }}
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Write private key to file
+      - name: Write EC2 SSH key to file
         run: |
-          echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
+          printf '%s\n' "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Copy Docker Compose File to EC2
+      - name: Copy compose file to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.EC2_PUBLIC_IP }}
+          host:     ${{ env.EC2_PUBLIC_IP }}
           username: ${{ env.AWS_EC2_USER }}
           key_path: ./private_key.pem
-          source: "compose.aws.yml"
-          target: "/home/${{ env.AWS_EC2_USER }}"
+          source:   compose.aws.yml
+          target:   /home/${{ env.AWS_EC2_USER }}
 
       - name: Generate .env.prod on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.EC2_PUBLIC_IP }}
+          host:     ${{ env.EC2_PUBLIC_IP }}
           username: ${{ env.AWS_EC2_USER }}
           key_path: ./private_key.pem
           script: |
-            cd /home/${{ env.AWS_EC2_USER }}
-            rm -f .env.prod
-            touch .env.prod
-            echo "CLIENT_HOST=client.${{ env.EC2_PUBLIC_IP }}.nip.io" >> .env.prod
-            echo "SERVER_HOST=api.${{ env.EC2_PUBLIC_IP }}.nip.io" >> .env.prod
-            echo "PUBLIC_API_URL=https://api.${{ env.EC2_PUBLIC_IP }}.nip.io/api" >> .env.prod
+            set -euo pipefail
+            cd ~
+            cat > .env.prod <<EOF
+            CLIENT_HOST=client.${{ env.EC2_PUBLIC_IP }}.nip.io
+            SERVER_HOST=api.${{ env.EC2_PUBLIC_IP }}.nip.io
+            PUBLIC_API_URL=https://api.${{ env.EC2_PUBLIC_IP }}.nip.io/api
+            EOF
 
-      - name: SSH to EC2 and Deploy Docker Compose
+      - name: Pull and redeploy containers
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.EC2_PUBLIC_IP }}
+          host:     ${{ env.EC2_PUBLIC_IP }}
           username: ${{ env.AWS_EC2_USER }}
           key_path: ./private_key.pem
           script: |
-            cd /home/${{ env.AWS_EC2_USER }}
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            set -euo pipefail
+            cd ~
+            echo "${{ secrets.GITHUB_TOKEN }}" | \
+              docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             docker compose -f compose.aws.yml --env-file .env.prod pull
             docker compose -f compose.aws.yml --env-file .env.prod up -d --remove-orphans
