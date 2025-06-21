@@ -22,8 +22,8 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public void deleteByIdAndUserEmail(Long id, String email){
-        categoryRepository.deleteByIdAndUserEmail(id, email);
+    public void deleteById(Long id){
+        categoryRepository.deleteById(id);
     }
 
     public List<Category> getByUserEmail(String email) {

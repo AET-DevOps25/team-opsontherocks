@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByUserEmail(String email);
-    void deleteByIdAndUserEmail(Long id, String email);
 
+    void deleteById(Long id);
     Optional<Category> findByIdAndUserEmail(Long id, String email);
 }
