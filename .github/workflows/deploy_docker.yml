@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: { }
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -17,19 +17,21 @@ jobs:
     environment: opsontherocks
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Write EC2 SSH key to file
+      - name: Setup SSH key for EC2
         run: |
-          echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
-          chmod 400 private_key.pem
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > ~/.ssh/private_key.pem
+          chmod 600 ~/.ssh/private_key.pem
 
-      - name: Copy compose file to EC2
+      - name: Copy docker-compose file to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ./private_key.pem
+          key_path: ~/.ssh/private_key.pem
           source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
 
@@ -38,7 +40,7 @@ jobs:
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ./private_key.pem
+          key_path: ~/.ssh/private_key.pem
           script: |
             set -euo pipefail
             cat > ~/.env.prod <<EOF
@@ -52,7 +54,7 @@ jobs:
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ./private_key.pem
+          key_path: ~/.ssh/private_key.pem
           script: |
             set -euo pipefail
             echo "${{ secrets.GITHUB_TOKEN }}" | \
