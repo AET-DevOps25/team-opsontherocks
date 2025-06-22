@@ -20,27 +20,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key for EC2
+      - name: Set up labsuser SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > ~/.ssh/private_key.pem
-          chmod 600 ~/.ssh/private_key.pem
+          echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > ~/.ssh/labsuser.pem
+          chmod 400 ~/.ssh/labsuser.pem
 
-      - name: Copy docker-compose file to EC2
+      - name: Copy Docker Compose file to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ~/.ssh/private_key.pem
+          key_path: ~/.ssh/labsuser.pem
           source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
 
-      - name: Generate .env.prod on EC2
+      - name: Generate .env.prod file on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ~/.ssh/private_key.pem
+          key_path: ~/.ssh/labsuser.pem
           script: |
             set -euo pipefail
             cat > ~/.env.prod <<EOF
@@ -49,12 +49,12 @@ jobs:
             PUBLIC_API_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io/api
             EOF
 
-      - name: Pull and redeploy containers
+      - name: Pull and redeploy Docker containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
-          key_path: ~/.ssh/private_key.pem
+          key_path: ~/.ssh/labsuser.pem
           script: |
             set -euo pipefail
             echo "${{ secrets.GITHUB_TOKEN }}" | \
