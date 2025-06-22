@@ -1,5 +1,10 @@
 name: Deploy current Docker images
-on: { workflow_dispatch: { } }
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -9,28 +14,25 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: opsontherocks      # must match the environment that holds the secrets
+    environment: opsontherocks
 
     steps:
       - uses: actions/checkout@v4
 
-      # 1️⃣ dump the private key into a file
       - name: Write EC2 SSH key to file
         run: |
           echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-      # 2️⃣ copy compose file
       - name: Copy compose file to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ vars.EC2_PUBLIC_IP }}
           username: ${{ vars.AWS_EC2_USER }}
           key_path: ./private_key.pem
-          source: compose.aws.yml
+          source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
 
-      # 3️⃣ create .env.prod
       - name: Generate .env.prod on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -45,7 +47,6 @@ jobs:
             PUBLIC_API_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io/api
             EOF
 
-      # 4️⃣ pull & restart
       - name: Pull and redeploy containers
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -56,5 +57,5 @@ jobs:
             set -euo pipefail
             echo "${{ secrets.GITHUB_TOKEN }}" | \
               docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            docker compose -f compose.aws.yml --env-file ~/.env.prod pull
-            docker compose -f compose.aws.yml --env-file ~/.env.prod up -d --remove-orphans
+            docker compose -f compose-aws.yml --env-file ~/.env.prod pull
+            docker compose -f compose-aws.yml --env-file ~/.env.prod up -d --remove-orphans
