@@ -204,6 +204,7 @@ export default function Settings({onBack}: SettingsProps) {
                                 <div key={sub.id}
                                      className="flex items-center justify-between rounded-xl border bg-white p-4"><span
                                     className="font-medium text-gray-800">{sub.name}</span>
+                                    <div className="flex items-center gap-2">
                                     <Dialog>
                                     <DialogTrigger asChild>
                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500">
@@ -241,7 +242,11 @@ export default function Settings({onBack}: SettingsProps) {
                                                                                                    size="sm"
                                                                                                    onClick={() => removeSub(sub.id)}
                                                                                                    className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"><X
-                                    className="h-4 w-4"/></Button></div>))}</div>
+                                    className="h-4 w-4"/>
+                                    </Button>
+                                    </div>
+                                </div>
+                            ))}</div>
 
                             {cat.subcategories.length === 0 &&
                                 <p className="py-6 text-center italic text-gray-500">No subcategories yet. Add your
