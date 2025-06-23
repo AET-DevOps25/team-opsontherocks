@@ -79,4 +79,28 @@ public class UserController {
         categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/categories/defaults")
+    public ResponseEntity<?> createDefaultCategories(@AuthenticationPrincipal String email) {
+        List<Category> exisiting_categories = categoryService.getByUserEmail(email);
+        if(exisiting_categories.isEmpty()) {
+            List<Category> defaultCategories = List.of(
+                    new Category("Finances", CategoryGroup.Career, email),
+                    new Category("Mental Health", CategoryGroup.Health, email),
+                    new Category("Physical Health", CategoryGroup.Health, email),
+                    new Category("Friends", CategoryGroup.Relationships, email),
+                    new Category("Family", CategoryGroup.Relationships, email),
+                    new Category("Romance", CategoryGroup.Relationships, email),
+                    new Category("Growth", CategoryGroup.Career, email),
+                    new Category("Purpose", CategoryGroup.Career, email),
+                    new Category("Social Engagement", CategoryGroup.Other, email),
+                    new Category("Entertainment", CategoryGroup.Other, email)
+            );
+            for (Category category : defaultCategories) {
+                categoryService.add(category);
+            }
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
