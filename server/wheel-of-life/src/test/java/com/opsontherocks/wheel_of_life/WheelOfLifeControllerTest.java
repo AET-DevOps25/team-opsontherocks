@@ -117,9 +117,9 @@ public class WheelOfLifeControllerTest {
         Long id = 1L;
         String email = "test@example.com";
 
-        categoryService.deleteByIdAndUserEmail(id, email);
+        categoryService.deleteById(id);
 
-        verify(categoryRepository).deleteByIdAndUserEmail(id, email);
+        verify(categoryRepository).deleteById(id);
     }
 
 

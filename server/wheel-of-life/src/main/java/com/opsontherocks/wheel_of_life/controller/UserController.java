@@ -75,7 +75,7 @@ public class UserController {
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal String email) {
-        categoryService.deleteByIdAndUserEmail(id, email);
+        categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }
