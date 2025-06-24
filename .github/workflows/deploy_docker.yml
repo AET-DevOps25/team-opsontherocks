@@ -31,19 +31,6 @@ jobs:
           source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
 
-      - name: Generate .env.prod on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ vars.EC2_PUBLIC_IP }}
-          username: ${{ vars.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            cat > .env.prod <<EOF
-            CLIENT_HOST=client.${{ vars.EC2_PUBLIC_IP }}.nip.io
-            SERVER_HOST=api.${{ vars.EC2_PUBLIC_IP }}.nip.io
-            PUBLIC_API_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io/api
-            EOF
-
       - name: Deploy containers with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -52,4 +39,13 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose -f compose-aws.yml --env-file .env.prod up --pull always -d --remove-orphans
+
+            CLIENT_HOST=client.${{ vars.EC2_PUBLIC_IP }}.nip.io \
+            SERVER_HOST=api.${{ vars.EC2_PUBLIC_IP }}.nip.io \
+            PUBLIC_API_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io/api \
+            POSTGRES_USER=${{ vars.POSTGRES_USER }} \
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            GRAFANA_USER=${{ vars.GRAFANA_USER }} \
+            GRAFANA_PASSWORD=${{ secrets.GRAFANA_PASSWORD }} \
+            JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            docker compose -f compose-aws.yml up --pull always -d --remove-orphans
