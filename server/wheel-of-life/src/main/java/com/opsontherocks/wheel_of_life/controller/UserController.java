@@ -75,7 +75,6 @@ public class UserController {
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal String email) {
-        System.out.println("User attempting delete: " + email);
         categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

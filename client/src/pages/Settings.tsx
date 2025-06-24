@@ -205,44 +205,44 @@ export default function Settings({onBack}: SettingsProps) {
                                      className="flex items-center justify-between rounded-xl border bg-white p-4"><span
                                     className="font-medium text-gray-800">{sub.name}</span>
                                     <div className="flex items-center gap-2">
-                                    <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500">
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-sm">
-                                        <DialogHeader>
-                                            <DialogTitle>Rename Subcategory</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="py-2">
-                                            <Input
-                                                defaultValue={sub.name}
-                                                onChange={(e) => sub.name = e.target.value} // direct mutation for now
-                                                id={`edit-input-${sub.id}`}
-                                            />
-                                        </div>
-                                        <DialogFooter>
-                                            <DialogClose asChild>
-                                                <Button variant="outline">Cancel</Button>
-                                            </DialogClose>
-                                            <DialogClose asChild>
-                                            <Button
-                                                onClick={() => {
-                                                    const inputEl = document.getElementById(`edit-input-${sub.id}`) as HTMLInputElement;
-                                                    editSub(sub.id, inputEl.value);
-                                                }}
-                                            >
-                                                Save
-                                            </Button>
-                                            </DialogClose>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog><Button variant="ghost"
-                                                                                                   size="sm"
-                                                                                                   onClick={() => removeSub(sub.id)}
-                                                                                                   className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"><X
-                                    className="h-4 w-4"/>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500">
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-sm">
+                                                <DialogHeader>
+                                                    <DialogTitle>Rename Subcategory</DialogTitle>
+                                                </DialogHeader>
+                                                <div className="py-2">
+                                                    <Input
+                                                        defaultValue={sub.name}
+                                                        onChange={(e) => sub.name = e.target.value} // direct mutation for now
+                                                        id={`edit-input-${sub.id}`}
+                                                    />
+                                                </div>
+                                                <DialogFooter>
+                                                    <DialogClose asChild>
+                                                        <Button variant="outline">Cancel</Button>
+                                                    </DialogClose>
+                                                    <DialogClose asChild>
+                                                        <Button
+                                                            onClick={() => {
+                                                                const inputEl = document.getElementById(`edit-input-${sub.id}`) as HTMLInputElement;
+                                                                editSub(sub.id, inputEl.value);
+                                                            }}
+                                                        >
+                                                            Save
+                                                        </Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog><Button variant="ghost"
+                                                         size="sm"
+                                                         onClick={() => removeSub(sub.id)}
+                                                         className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"><X
+                                        className="h-4 w-4"/>
                                     </Button>
                                     </div>
                                 </div>

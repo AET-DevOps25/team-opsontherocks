@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 const authServer = import.meta.env.VITE_AUTH_URL;
 const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
+
 type AuthTab = "login" | "register";
 
 interface Props {
@@ -92,10 +93,9 @@ export default function AuthPage({ onLoginSuccess }: Props) {
             if (!res.ok) {
                 setError(text || `Error ${res.status}`);
             } else {
-            if (tab === "register") {
-                await setupDefaultCategories();
-            }
-
+                if (tab === "register") {
+                    await setupDefaultCategories();
+                }
                 const ok = await onLoginSuccess();
                 if (ok) navigate("/wheel");
                 else setError("Session check failed after login.");

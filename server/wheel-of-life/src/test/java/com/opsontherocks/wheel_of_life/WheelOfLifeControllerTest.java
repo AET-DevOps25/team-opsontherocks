@@ -119,7 +119,7 @@ public class WheelOfLifeControllerTest {
 
         categoryService.deleteById(id);
 
-       verify(categoryRepository).deleteById(id);
+        verify(categoryRepository).deleteById(id);
     }
 
 
