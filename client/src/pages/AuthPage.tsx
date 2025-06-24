@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const authServer = import.meta.env.VITE_AUTH_URL;
+const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
+
 
 type AuthTab = "login" | "register";
 
@@ -31,6 +33,25 @@ interface Props {
      * Should return `true` if the session is valid so we can navigate forward.
      */
     onLoginSuccess: () => Promise<boolean>;
+}
+
+async function setupDefaultCategories() {
+    try {
+        const res = await fetch(`${SERVER}/users/me/categories/defaults`, {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("Failed to create default categories:", errorText);
+        } else {
+            console.log("Default categories created successfully.");
+        }
+    } catch (err) {
+        console.error("Network error while creating default categories:", err);
+    }
 }
 
 export default function AuthPage({ onLoginSuccess }: Props) {
@@ -72,6 +93,9 @@ export default function AuthPage({ onLoginSuccess }: Props) {
             if (!res.ok) {
                 setError(text || `Error ${res.status}`);
             } else {
+                if (tab === "register") {
+                    await setupDefaultCategories();
+                }
                 const ok = await onLoginSuccess();
                 if (ok) navigate("/wheel");
                 else setError("Session check failed after login.");
