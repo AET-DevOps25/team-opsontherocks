@@ -38,9 +38,6 @@ jobs:
           username: ${{ vars.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            sudo apt update
-            sudo apt install docker-compose-plugin -y
-      
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       
             CLIENT_HOST=client.${{ vars.EC2_PUBLIC_IP }}.nip.io \
@@ -51,4 +48,5 @@ jobs:
             GRAFANA_USER=${{ vars.GRAFANA_USER }} \
             GRAFANA_PASSWORD=${{ secrets.GRAFANA_PASSWORD }} \
             JWT_SECRET=${{ secrets.JWT_SECRET }} \
-            docker compose -f compose-aws.yml up --pull always -d --remove-orphans
+            /usr/bin/docker /usr/libexec/docker/cli-plugins/docker-compose -f compose-aws.yml up --pull always -d --remove-orphans
+      
