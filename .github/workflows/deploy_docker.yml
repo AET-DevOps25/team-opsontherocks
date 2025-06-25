@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: opsontherocks
-      url: 'https://client.${{ vars.EC2_PUBLIC_IP }}.nip.io'
+      url: "https://client.${{ vars.EC2_PUBLIC_IP }}.nip.io"
 
     steps:
       - name: Checkout code
@@ -30,24 +30,47 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
-          
+
+      - name: Generate .env.prod on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          EC2_IP: ${{ vars.EC2_PUBLIC_IP }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
+          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        with:
+          host: ${{ vars.EC2_PUBLIC_IP }}
+          username: ${{ vars.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
+          script: |
+            cat > .env.prod <<EOF
+            CLIENT_HOST=client.${EC2_IP}.nip.io
+            SERVER_HOST=api.${EC2_IP}.nip.io
+            PUBLIC_API_URL=https://api.${EC2_IP}.nip.io/api
+            POSTGRES_USER=${POSTGRES_USER}
+            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            GRAFANA_HOST=grafana.${EC2_IP}.nip.io
+            GRAFANA_USER=${GRAFANA_USER}
+            GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            EOF
+
       - name: Deploy containers with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         env:
-          # existing envs trimmed for brevity …
-          GITHUB_REPOSITORY:        ${{ github.repository }}
-          GITHUB_REPOSITORY_OWNER:  ${{ github.repository_owner }}
-          TAG:                      ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          TAG: ${{ github.sha }}
         with:
-          host:      ${{ vars.EC2_PUBLIC_IP }}
-          username:  ${{ vars.AWS_EC2_USER }}
-          key:       ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          envs: |
-            GITHUB_REPOSITORY,GITHUB_REPOSITORY_OWNER,TAG,
-            CLIENT_HOST,SERVER_HOST,API_HOST,AUTH_HOST,GENAI_HOST,GRAFANA_HOST,
-            POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
+          host: ${{ vars.EC2_PUBLIC_IP }}
+          username: ${{ vars.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          envs: GITHUB_REPOSITORY,GITHUB_REPOSITORY_OWNER,TAG
           script: |
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            export GITHUB_REPOSITORY="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"   # down-case repo
-            export GITHUB_REPOSITORY_OWNER="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"   # down-case owner
-            docker compose -f compose-aws.yml up --pull always -d --remove-orphans
+            export GITHUB_REPOSITORY="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+            export GITHUB_REPOSITORY_OWNER="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+            docker compose --env-file .env.prod -f compose-aws.yml up --pull always -d --remove-orphans
