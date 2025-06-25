@@ -34,19 +34,32 @@ jobs:
       - name: Deploy containers with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         env:
+          # ────── image-path variables ──────
+          GITHUB_REPOSITORY:        ${{ github.repository }}
+          GITHUB_REPOSITORY_OWNER:  ${{ github.repository_owner }}
+          TAG:                      ${{ github.sha }}
+          # ────── public hostnames ──────
           CLIENT_HOST:  "client.${{ vars.EC2_PUBLIC_IP }}.nip.io"
           SERVER_HOST:  "api.${{ vars.EC2_PUBLIC_IP }}.nip.io"
-          PUBLIC_API_URL: "https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io/api"
-          POSTGRES_USER:      ${{ vars.POSTGRES_USER }}
-          POSTGRES_PASSWORD:  ${{ secrets.POSTGRES_PASSWORD }}
-          GRAFANA_USER:       ${{ vars.GRAFANA_USER }}
-          GRAFANA_PASSWORD:   ${{ secrets.GRAFANA_PASSWORD }}
-          JWT_SECRET:         ${{ secrets.JWT_SECRET }}
+          API_HOST:     "api.${{ vars.EC2_PUBLIC_IP }}.nip.io"
+          AUTH_HOST:    "auth.${{ vars.EC2_PUBLIC_IP }}.nip.io"
+          GENAI_HOST:   "genai.${{ vars.EC2_PUBLIC_IP }}.nip.io"
+          GRAFANA_HOST: "grafana.${{ vars.EC2_PUBLIC_IP }}.nip.io"
+          # ────── app credentials ──────
+          POSTGRES_USER:     ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          GRAFANA_USER:      ${{ vars.GRAFANA_USER }}
+          GRAFANA_PASSWORD:  ${{ secrets.GRAFANA_PASSWORD }}
+          JWT_SECRET:        ${{ secrets.JWT_SECRET }}
         with:
           host:      ${{ vars.EC2_PUBLIC_IP }}
           username:  ${{ vars.AWS_EC2_USER }}
           key:       ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          envs:      CLIENT_HOST,SERVER_HOST,PUBLIC_API_URL,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
+          # Comma-separated list of every env you just defined
+          envs: |
+            GITHUB_REPOSITORY,GITHUB_REPOSITORY_OWNER,TAG,
+            CLIENT_HOST,SERVER_HOST,API_HOST,AUTH_HOST,GENAI_HOST,GRAFANA_HOST,
+            POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
           script: |
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f compose-aws.yml up --pull always -d --remove-orphans
