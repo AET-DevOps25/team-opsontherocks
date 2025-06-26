@@ -5,7 +5,7 @@ import {ArrowLeft, Pencil, Plus, X} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Badge} from '@/components/ui/badge';
-import type {MainCategory} from '@/types/Categories';
+import type {MainCategory} from '@/types/categories';
 import {
     Dialog,
     DialogClose,

@@ -3,6 +3,7 @@ import AuthPage from './pages/AuthPage';
 import {useEffect, useState} from 'react';
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
+import ReportPage from "@/pages/ReportPage";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -88,6 +89,18 @@ export default function App() {
             <Route
                 path="*"
                 element={<Navigate to={isAuthenticated ? '/' : '/auth'} replace/>}
+            />
+
+            <Route
+                path="/report"
+                element={
+                    isAuthenticated ? (
+                        <ReportPage/>
+
+                    ) : (
+                        <Navigate to="/auth" replace/>
+                    )
+                }
             />
         </Routes>
     );

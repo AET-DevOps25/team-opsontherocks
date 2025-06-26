@@ -12,3 +12,9 @@ export type CategoryData = {
     isCustom?: boolean
     mainCategory: string
 }
+
+export type CategoryValue = {
+    name: string;
+    value: number;  // 0-10
+    color: string;  // HEX
+};
