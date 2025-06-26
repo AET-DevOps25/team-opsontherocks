@@ -28,24 +28,7 @@ export default function ReportPage() {
 
     return (
         <div className="relative min-h-screen w-full bg-gray-50">
-            {/* animated backdrop */}
-            <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-0.5 z-0 rounded-[3rem] blur-3xl opacity-40"
-                style={{
-                    background: "radial-gradient(circle at 30% 30%, #6366f188, transparent 70%)",
-                }}
-            />
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0.5 z-0 animate-orbit opacity-60"
-                style={{
-                    background:
-                        "linear-gradient(70deg, #8B5CF6AA 0%, #06B6D4DD 40%, #10B98122 60%, #F59E0BDD 90%)",
-                    backgroundSize: "300% 300%",
-                    filter: "blur(6px)",
-                }}
-            />
+
 
             <main className="relative z-10 mx-auto max-w-5xl space-y-10 px-4 py-12">
                 <header className="mb-4 flex items-center justify-between gap-4">

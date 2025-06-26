@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
-import { MainCategory, CategoryValue } from "@/types/categories";
+import {useCallback, useEffect, useState} from "react";
+import {CategoryValue, MainCategory} from "@/types/categories";
 
 const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
-const base   = SERVER
+const base = SERVER
     ? `${SERVER}/users/me/categories`
-    : (() => { throw new Error("VITE_SERVER_URL not set"); })();
+    : (() => {
+        throw new Error("VITE_SERVER_URL not set");
+    })();
 
 async function api<T>(opts: RequestInit = {}): Promise<T> {
     const res = await fetch(base, {
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+        headers: {"Content-Type": "application/json", ...(opts.headers || {})},
         ...opts,
     });
     const txt = await res.clone().text();
@@ -19,20 +21,20 @@ async function api<T>(opts: RequestInit = {}): Promise<T> {
 }
 
 export function useCategories() {
-    const [values, setValues]   = useState<CategoryValue[]>([]);
+    const [values, setValues] = useState<CategoryValue[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const refresh = useCallback(async () => {
         try {
             setLoading(true);
 
-            const data = await api<MainCategory[]>({ method: "GET" });
+            const data = await api<MainCategory[]>({method: "GET"});
             console.log("[useCategories] fetched", data);
 
-            const mapped: CategoryValue[] = data.map((m) => {
+            const mapped: CategoryValue[] = data.map((mainCategory) => {
                 /* Ensure we always have an array to iterate */
-                const subs = Array.isArray(m.subcategories) ? m.subcategories : [];
+                const subs = Array.isArray(mainCategory.subcategories) ? mainCategory.subcategories : [];
 
                 const rawAvg =
                     subs.length === 0
@@ -41,7 +43,7 @@ export function useCategories() {
 
                 const value = Math.max(1, Math.round(rawAvg * 10) / 10);
 
-                return { name: m.name, value, color: m.color };
+                return {name: mainCategory.name, value, color: mainCategory.color};
             });
 
             console.log("[useCategories] mapped →", mapped);
@@ -55,7 +57,9 @@ export function useCategories() {
         }
     }, []);
 
-    useEffect(() => { void refresh(); }, [refresh]);
+    useEffect(() => {
+        void refresh();
+    }, [refresh]);
 
-    return { values, setValues, loading, error, refresh };
+    return {values, setValues, loading, error, refresh};
 }

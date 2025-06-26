@@ -1,17 +1,9 @@
 "use client";
 
 import React from "react";
-import {
-    RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
-    Radar,
-    Tooltip,
-    ResponsiveContainer,
-} from "recharts";
-import { CategoryValue } from "@/types/categories";
-import { DraggableRadarDot } from "@/components/DraggableRadarDot";
+import {PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip,} from "recharts";
+import {CategoryValue} from "@/types/categories";
+import {DraggableRadarDot} from "@/components/DraggableRadarDot";
 
 interface Props {
     categories?: CategoryValue[];
@@ -31,7 +23,7 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
     }));
 
     const renderDot = (props: any) => {
-        const { index } = props as { index: number };
+        const {index} = props as { index: number };
         const slice = safeCats[index];
         if (!slice) return null;
 
@@ -46,40 +38,60 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
         );
     };
 
-    const renderAngleTick = ({ payload, x, y }: any) => (
-        <text
-            x={x}
-            y={y}
-            textAnchor="middle"
-            fill="#222"
-            fontSize={14}
-            fontWeight="bold"
-            style={{ cursor: "default" }}
-        >
-            {payload.value}
-        </text>
-    );
+    const renderAngleTick = ({payload, x, y, cx, cy}: any) => {
+        const RADIAN = Math.PI / 180;
+        const radiusOffset = 20; // increase this for more distance
+        const angle = payload.coordinate;
+
+        const deltaX = Math.cos(-angle * RADIAN) * radiusOffset;
+        const deltaY = Math.sin(-angle * RADIAN) * radiusOffset;
+
+        return (
+            <text
+                x={x + deltaX}
+                y={y + deltaY}
+                textAnchor="middle"
+                fill="#222"
+                fontSize={14}
+                fontWeight="bold"
+                style={{cursor: "default"}}
+            >
+                {payload.value}
+            </text>
+        );
+    };
+
 
     return (
         <div className="flex w-full flex-col items-center mb-10">
-            <div className="relative w-full max-w-4xl min-h-[550px] rounded-3xl bg-white/80 p-6 shadow-xl backdrop-blur">
+            <div
+                className="relative w-full max-w-4xl min-h-[550px] rounded-3xl bg-white/80 p-6 shadow-xl backdrop-blur outline-none border-none">
                 <ResponsiveContainer width="100%" height={500} minWidth={400}>
                     <RadarChart data={data}>
-                        <PolarGrid strokeDasharray="4 4" />
-                        <PolarAngleAxis dataKey="category" tick={renderAngleTick} />
+                        <defs>
+                            <linearGradient id="radarGradient" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.5}/>
+                                <stop offset="50%" stopColor="#06B6D4" stopOpacity={0.4}/>
+                                <stop offset="100%" stopColor="#10B981" stopOpacity={0.6}/>
+                            </linearGradient>
+                        </defs>
+
+                        <PolarGrid stroke="#5c5c6b" strokeDasharray="4 4"/>
+                        <PolarAngleAxis dataKey="category" tick={renderAngleTick}/>
                         <PolarRadiusAxis
                             angle={90}
                             domain={[0, 10]}
                             axisLine={false}
                             tickCount={6}
-                            tick={{ fontSize: 12 }}
+                            tick={{fontSize: 12}}
+                            stroke="#5c5c6b"
                         />
                         <Radar
                             dataKey="value"
                             dot={renderDot as any}
-                            fillOpacity={0.13}
+                            fill="url(#radarGradient)"
+                            fillOpacity={1}
                             stroke="#6366f1"
-                            fill="#6366f1"
                             isAnimationActive={false}
                         />
                         <Tooltip
@@ -87,6 +99,7 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
                             labelFormatter={(c: string) => `Category: ${c}`}
                         />
                     </RadarChart>
+
                 </ResponsiveContainer>
             </div>
         </div>

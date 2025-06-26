@@ -101,6 +101,7 @@ export const DraggableRadarDot: React.FC<DraggableRadarDotProps> = ({
     };
 
     return (
+
         <circle
             {...circlePos}
             r={dragging ? 8 : 7}
