@@ -1,14 +1,15 @@
-import {Navigate, Route, Routes} from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
 import ReportPage from "@/pages/ReportPage";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
-export default function App() {
+function AppRoutes() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const navigate = useNavigate();
 
     const checkAuthStatus = async (): Promise<boolean> => {
         try {
@@ -17,7 +18,7 @@ export default function App() {
                 method: 'GET',
                 mode: 'cors',
                 credentials: 'include',
-                headers: {'Accept': 'application/json'}
+                headers: { 'Accept': 'application/json' }
             });
             return res.ok;
         } catch (err) {
@@ -27,7 +28,6 @@ export default function App() {
     };
 
     useEffect(() => {
-        console.log('hi')
         let mounted = true;
         (async () => {
             console.log('[App] Running initial auth check');
@@ -52,22 +52,18 @@ export default function App() {
 
     return (
         <Routes>
-            <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess}/>}/>
+            <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
 
             <Route
                 path="/"
                 element={
                     isAuthenticated ? (
                         <Dashboard
-                            onCreateReport={() => {
-                                throw new Error('Function not implemented.');
-                            }}
-                            onOpenSettings={() => {
-                                window.location.href = "/settings";
-                            }}
+                            onCreateReport={() => navigate("/report")}
+                            onOpenSettings={() => navigate("/settings")}
                         />
                     ) : (
-                        <Navigate to="/auth" replace/>
+                        <Navigate to="/auth" replace />
                     )
                 }
             />
@@ -77,31 +73,33 @@ export default function App() {
                 element={
                     isAuthenticated ? (
                         <Settings
-                            onBack={() => window.location.href = '/'}
+                            onBack={() => navigate("/")}
                         />
-
                     ) : (
-                        <Navigate to="/auth" replace/>
+                        <Navigate to="/auth" replace />
                     )
                 }
-            />
-
-            <Route
-                path="*"
-                element={<Navigate to={isAuthenticated ? '/' : '/auth'} replace/>}
             />
 
             <Route
                 path="/report"
                 element={
                     isAuthenticated ? (
-                        <ReportPage/>
-
+                        <ReportPage />
                     ) : (
-                        <Navigate to="/auth" replace/>
+                        <Navigate to="/auth" replace />
                     )
                 }
             />
+
+            <Route
+                path="*"
+                element={<Navigate to={isAuthenticated ? '/' : '/auth'} replace />}
+            />
         </Routes>
     );
+}
+
+export default function App() {
+    return <AppRoutes />;
 }

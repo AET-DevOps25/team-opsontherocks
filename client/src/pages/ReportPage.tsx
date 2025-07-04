@@ -32,11 +32,19 @@ export default function ReportPage() {
         <div className="relative min-h-screen w-full bg-gray-50">
             <main className="relative z-10 mx-auto max-w-5xl space-y-10 px-4 py-12">
                 {/* Header with top Generate Report button */}
-                <header className="mb-4 flex items-center justify-between gap-4">
+                <header className="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h1 className="text-4xl font-extrabold text-gray-900">Progress Report</h1>
                         <p className="text-base text-gray-600">Fine-tune your life balance below.</p>
+                        <Button
+                            variant="outline"
+                            onClick={() => (window.location.href = "/")}
+                            className="mt-4"
+                        >
+                            ← Back
+                        </Button>
                     </div>
+
                     <Button
                         onClick={handleGenerateReport}
                         className="h-9 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white shadow hover:scale-105 transition"
@@ -44,6 +52,7 @@ export default function ReportPage() {
                         <FileText className="mr-2 h-4 w-4" /> Generate Report
                     </Button>
                 </header>
+
 
                 <WheelOfLifeRadar categories={values} onChange={handleChange} />
 
