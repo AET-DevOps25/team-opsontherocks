@@ -2,7 +2,10 @@ package com.opsontherocks.wheel_of_life.controller;
 
 import com.opsontherocks.wheel_of_life.entity.Category;
 import com.opsontherocks.wheel_of_life.entity.CategoryGroup;
+import com.opsontherocks.wheel_of_life.entity.ChatMessage;
+import com.opsontherocks.wheel_of_life.entity.Report;
 import com.opsontherocks.wheel_of_life.service.CategoryService;
+import com.opsontherocks.wheel_of_life.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +30,9 @@ public class UserController {
 
     private final JdbcTemplate jdbc;
     private final CategoryService categoryService;
+    private final ReportService reportService;
 
+    // --- User Info ---
     @GetMapping
     public ResponseEntity<String> currentUserName(@AuthenticationPrincipal String email) {
         String sql = "SELECT name FROM users WHERE email = ?";
@@ -32,6 +40,7 @@ public class UserController {
         return ResponseEntity.ok(name);
     }
 
+    // --- Categories ---
     @GetMapping("/categories")
     public ResponseEntity<List<Category>> findAll(@AuthenticationPrincipal String email) {
         return ResponseEntity.ok(categoryService.getByUserEmail(email));
@@ -59,7 +68,6 @@ public class UserController {
                 .body(categoryService.add(category));
     }
 
-
     @PutMapping("/categories/{id}")
     public ResponseEntity<Category> update(@PathVariable Long id,
                                            @RequestBody Category payload,
@@ -81,8 +89,8 @@ public class UserController {
 
     @PostMapping("/categories/defaults")
     public ResponseEntity<?> createDefaultCategories(@AuthenticationPrincipal String email) {
-        List<Category> exisiting_categories = categoryService.getByUserEmail(email);
-        if(exisiting_categories.isEmpty()) {
+        List<Category> existingCategories = categoryService.getByUserEmail(email);
+        if (existingCategories.isEmpty()) {
             List<Category> defaultCategories = List.of(
                     new Category("Finances", CategoryGroup.Career, email),
                     new Category("Mental Health", CategoryGroup.Health, email),
@@ -101,5 +109,61 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // --- Reports ---
+    @GetMapping("/reports")
+    public ResponseEntity<List<Report>> getAllReports(@AuthenticationPrincipal String email) {
+        return ResponseEntity.ok(reportService.getByUserEmail(email));
+    }
+
+    @GetMapping("/reports/{year}/{week}")
+    public ResponseEntity<?> getReport(@PathVariable int year,
+                                       @PathVariable int week,
+                                       @AuthenticationPrincipal String email) {
+        return reportService.getByWeekAndYear(email, week, year)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/reports")
+    public ResponseEntity<?> addOrUpdateReport(@RequestBody Report report,
+                                               @AuthenticationPrincipal String email) {
+        if (report.getCalendarWeek() == null || report.getYear() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Week and year are required."));
+        }
+
+        report.setUserEmail(email);
+        Report saved = reportService.addOrUpdate(report);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @DeleteMapping("/reports/{year}/{week}")
+    public ResponseEntity<Void> deleteReport(@PathVariable int year,
+                                             @PathVariable int week,
+                                             @AuthenticationPrincipal String email) {
+        reportService.delete(email, week, year);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reports/this-week")
+    public ResponseEntity<?> createEmptyReportForThisWeek(@AuthenticationPrincipal String email) {
+        int week = LocalDate.now().get(WeekFields.ISO.weekOfWeekBasedYear());
+        int year = LocalDate.now().get(WeekFields.ISO.weekBasedYear());
+
+        if (reportService.getByWeekAndYear(email, week, year).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Report already exists for this week"));
+        }
+
+        Report newReport = new Report(week, year, email);
+        newReport.setScores(new HashMap<>());
+        newReport.setNotes("");
+        newReport.setChat(List.of(
+                new ChatMessage("Let's reflect on your week. How did it go?", ChatMessage.Sender.AI)
+        ));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.addOrUpdate(newReport));
     }
 }
