@@ -97,3 +97,8 @@ body, html {
         @apply bg-background text-foreground;
     }
 }
+
+/* Remove blue outline from RadarChart SVG */
+.recharts-surface:focus {
+    outline: none !important;
+}

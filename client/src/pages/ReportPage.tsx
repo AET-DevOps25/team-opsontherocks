@@ -46,8 +46,9 @@ export default function ReportPage() {
                     </Button>
                 </header>
 
-                <WheelOfLifeRadar categories={values} onChange={handleChange} />
             </main>
+            <WheelOfLifeRadar categories={values} onChange={handleChange} />
+
         </div>
     );
 }

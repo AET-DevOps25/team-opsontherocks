@@ -5,6 +5,9 @@ const config: Config = {
 
     theme: {
         extend: {
+            outline: {
+                none: ['2px solid transparent'],
+            },
             fontFamily: {
                 sans: [
                     'system-ui',
