@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-wheel
+  namespace: "ge96wac-opsontherocks"
+spec:
+  type: {{ .Values.serverWheel.service.type }}
+  selector:
+    app: server-wheel
+  ports:
+    - port: {{ .Values.serverWheel.service.port }}
+      targetPort: {{ .Values.serverWheel.service.targetPort }}

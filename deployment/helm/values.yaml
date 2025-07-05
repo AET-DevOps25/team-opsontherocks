@@ -1,0 +1,104 @@
+# Default values for your team project Helm chart.
+
+# Add your TUM ID (used in Ingress host and namespace)
+tumid: ge96wac
+
+namespace:
+  create: false
+
+client:
+  image:
+    repository: ghcr.io/aet-devops25/team-opsontherocks/client:latest
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 5173
+    targetPort: 5173
+  replicaCount: 1
+
+serverAuth:
+  image:
+    repository: ghcr.io/aet-devops25/team-opsontherocks/authentication
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8081
+    targetPort: 8081
+  replicaCount: 1
+  env:
+    - name: SPRING_DATASOURCE_URL
+      value: jdbc:postgresql://postgres:5432/wheelOfLifeDB
+    - name: SPRING_DATASOURCE_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: postgres-secret
+          key: username
+    - name: SPRING_DATASOURCE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgres-secret
+          key: password
+    - name: JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: jwt-secret
+          key: secret
+
+
+serverWheel:
+  image:
+    repository: ghcr.io/aet-devops25/team-opsontherocks/wheel-of-life
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  replicaCount: 1
+  env:
+    - name: SPRING_DATASOURCE_URL
+      value: jdbc:postgresql://postgres:5432/wheelOfLifeDB
+    - name: SPRING_DATASOURCE_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: postgres-secret
+          key: username
+    - name: SPRING_DATASOURCE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgres-secret
+          key: password
+    - name: JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: jwt-secret
+          key: secret
+
+genai:
+  image:
+    repository: ghcr.io/aet-devops25/team-opsontherocks/genai
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 5001
+    targetPort: 5001
+  replicaCount: 1
+  env:
+    - name: CLIENT_ORIGIN
+      value: https://54.166.45.176
+    - name: JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: jwt-secret
+          key: secret
+
+ingress:
+  enabled: true
+  className: "nginx"
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+

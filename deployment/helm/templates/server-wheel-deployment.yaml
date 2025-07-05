@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-wheel
+  namespace: "ge96wac-opsontherocks"
+spec:
+  replicas: {{ .Values.serverWheel.replicaCount }}
+  selector:
+    matchLabels:
+      app: server-wheel
+  template:
+    metadata:
+      labels:
+        app: server-wheel
+    spec:
+      containers:
+        - name: server-wheel
+          image: "{{ .Values.serverWheel.image.repository }}:{{ .Values.serverWheel.image.tag }}"
+          imagePullPolicy: {{ .Values.serverWheel.image.pullPolicy }}
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+          ports:
+            - containerPort: {{ .Values.serverWheel.service.targetPort }}
+          env:
+            {{- range .Values.serverWheel.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: "{{ .value }}"
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}

@@ -1,0 +1,54 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: opsontherocks-ingress
+  namespace: "ge96wac-opsontherocks"
+  {{- $annotations := .Values.ingress.annotations | default dict }}
+  {{- if $annotations }}
+  annotations:
+    {{- toYaml $annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+    - hosts:
+        - "ge96wac-devops25.student.k8s.aet.cit.tum.de"
+      secretName: "ge96wac-opsontherocks-tls"
+  {{- end }}
+  rules:
+    - host: "ge96wac-opsontherocks.student.k8s.aet.cit.tum.de"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client
+                port:
+                  number: {{ .Values.client.service.port }}
+
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: server-auth
+                port:
+                  number: {{ .Values.serverAuth.service.port }}
+
+          - path: /wheel
+            pathType: Prefix
+            backend:
+              service:
+                name: server-wheel
+                port:
+                  number: {{ .Values.serverWheel.service.port }}
+
+          - path: /genai
+            pathType: Prefix
+            backend:
+              service:
+                name: genai
+                port:
+                  number: {{ .Values.genai.service.port }}
+{{- end }}

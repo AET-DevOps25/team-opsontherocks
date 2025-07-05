@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-auth
+  namespace: "ge96wac-opsontherocks"
+spec:
+  replicas: {{ .Values.serverAuth.replicaCount }}
+  selector:
+    matchLabels:
+      app: server-auth
+  template:
+    metadata:
+      labels:
+        app: server-auth
+    spec:
+      containers:
+        - name: server-auth
+          image: "{{ .Values.serverAuth.image.repository }}:{{ .Values.serverAuth.image.tag }}"
+          imagePullPolicy: {{ .Values.serverAuth.image.pullPolicy }}
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+          ports:
+            - containerPort: {{ .Values.serverAuth.service.targetPort }}
+          env:
+            {{- range .Values.serverAuth.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: "{{ .value }}"
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}

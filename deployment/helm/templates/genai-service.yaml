@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai
+  namespace: "ge96wac-opsontherocks"
+spec:
+  type: {{ .Values.genai.service.type }}
+  selector:
+    app: genai
+  ports:
+    - port: {{ .Values.genai.service.port }}
+      targetPort: {{ .Values.genai.service.targetPort }}
