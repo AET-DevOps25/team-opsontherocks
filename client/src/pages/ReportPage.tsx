@@ -1,20 +1,42 @@
 "use client";
 
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {FileText} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import {useCategories} from "@/hooks/useCategories";
 import {WheelOfLifeRadar} from "@/components/WheelOfLifeRadar";
 import {getISOWeek} from "date-fns";
+import {CategoryValue} from "@/types/categories";
 
 const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
-export default function ReportPage() {
-    const {values, setValues, loading, error} = useCategories();
-    const [notes, setNotes] = useState("");
+interface ReportPageProps {
+    initialData?: CategoryValue[];
+    initialNotes?: string;
+    onBack?: () => void;
+}
+
+export default function ReportPage({ initialData, initialNotes = "", onBack }: ReportPageProps) {
+    const {values: fetchedValues, setValues: setFetchedValues, loading, error} = useCategories();
+    const [values, setValues] = useState<CategoryValue[]>(initialData || []);
+    const [notes, setNotes] = useState(initialNotes);
     const [submitting, setSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState("");
+
+    // If no initial data is provided, use the fetched data
+    useEffect(() => {
+        if (!initialData && fetchedValues.length > 0) {
+            setValues(fetchedValues);
+        }
+    }, [initialData, fetchedValues]);
+
+    // If initial data is provided, use it immediately
+    useEffect(() => {
+        if (initialData) {
+            setValues(initialData);
+        }
+    }, [initialData]);
 
     const handleChange = (idx: number, name: string, value: number) => {
         setValues((prev) => {
@@ -65,8 +87,9 @@ export default function ReportPage() {
         }
     };
 
-    if (loading) return <p className="p-6 text-gray-500">Loading…</p>;
-    if (error) return <p className="p-6 text-red-600">{error}</p>;
+    // Only show loading/error if no initial data is provided and we're fetching
+    if (!initialData && loading) return <p className="p-6 text-gray-500">Loading…</p>;
+    if (!initialData && error) return <p className="p-6 text-red-600">{error}</p>;
 
     return (
         <div className="relative min-h-screen w-full bg-gray-50">
@@ -77,7 +100,7 @@ export default function ReportPage() {
                         <p className="text-base text-gray-600">Fine-tune your life balance below.</p>
                         <Button
                             variant="outline"
-                            onClick={() => (window.location.href = "/")}
+                            onClick={onBack || (() => (window.location.href = "/"))}
                             className="mt-4"
                         >
                             ← Back

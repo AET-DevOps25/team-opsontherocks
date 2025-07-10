@@ -4,11 +4,24 @@ import { useEffect, useState } from 'react';
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
 import ReportPage from "@/pages/ReportPage";
+import { Report } from "@/hooks/useReports";
+import { CategoryValue } from "@/types/categories";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
+// Helper function to convert report scores to CategoryValue format
+const convertReportToCategoryValues = (report: Report): CategoryValue[] => {
+    const colors = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
+    return Object.entries(report.scores).map(([name, value], index) => ({
+        name,
+        value: value as number,
+        color: colors[index % colors.length]
+    }));
+};
+
 function AppRoutes() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [selectedReport, setSelectedReport] = useState<Report | null>(null);
     const navigate = useNavigate();
 
     const checkAuthStatus = async (): Promise<boolean> => {
@@ -50,6 +63,16 @@ function AppRoutes() {
         return ok;
     };
 
+    const handleViewReport = (report: Report) => {
+        setSelectedReport(report);
+        navigate("/report");
+    };
+
+    const handleBackToDashboard = () => {
+        setSelectedReport(null);
+        navigate("/");
+    };
+
     return (
         <Routes>
             <Route path="/auth" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
@@ -61,6 +84,7 @@ function AppRoutes() {
                         <Dashboard
                             onCreateReport={() => navigate("/report")}
                             onOpenSettings={() => navigate("/settings")}
+                            onViewReport={handleViewReport}
                         />
                     ) : (
                         <Navigate to="/auth" replace />
@@ -85,7 +109,11 @@ function AppRoutes() {
                 path="/report"
                 element={
                     isAuthenticated ? (
-                        <ReportPage />
+                        <ReportPage 
+                            onBack={handleBackToDashboard} 
+                            initialData={selectedReport ? convertReportToCategoryValues(selectedReport) : undefined}
+                            initialNotes={selectedReport?.notes || ""}
+                        />
                     ) : (
                         <Navigate to="/auth" replace />
                     )
