@@ -96,13 +96,24 @@ services:
 
   genai:
     build: ./genai
+    restart: unless-stopped
     ports:
       - "5001:5001"
     environment:
       CLIENT_ORIGIN: "http://localhost:5173"
       JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_BASE: ${OPENAI_API_BASE:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+    depends_on:
+      - db
     networks:
       - app-network
+  
+
+
+
 
 networks:
   app-network:
@@ -111,3 +122,4 @@ networks:
 volumes:
   db-data:
   grafana-data:
+  open-webui:
