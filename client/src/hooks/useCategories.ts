@@ -63,3 +63,33 @@ export function useCategories() {
 
     return {values, setValues, loading, error, refresh};
 }
+
+// New hook that returns the full MainCategory structure
+export function useFullCategories() {
+    const [categories, setCategories] = useState<MainCategory[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const refresh = useCallback(async () => {
+        try {
+            setLoading(true);
+
+            const data = await api<MainCategory[]>({method: "GET"});
+            console.log("[useFullCategories] fetched", data);
+
+            setCategories(data);
+            setError(null);
+        } catch (err: any) {
+            console.error("[useFullCategories] error", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        void refresh();
+    }, [refresh]);
+
+    return {categories, setCategories, loading, error, refresh};
+}
