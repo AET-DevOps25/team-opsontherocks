@@ -31,11 +31,6 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation("com.h2database:h2:2.3.232")
 	implementation("org.springframework.security:spring-security-oauth2-jose:6.5.0")
-	
-	// Actuator for metrics
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.micrometer:micrometer-registry-prometheus'
-	implementation 'io.micrometer:micrometer-core'
 }
 
 tasks.named('test') {
