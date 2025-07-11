@@ -1,15 +1,11 @@
-apiVersion: 1
-
 datasources:
-  - name: Postgres - wheelOfLife
-    uid: postgres-wheel
-    type: postgres
+  - name: "Postgres - wheelOfLife"
+    uid: "postgres-wheel"
+    type: "postgres"
     url: db:5432
-    user: admin
+    user: ${POSTGRES_USER}
+    database: ${POSTGRES_DB}
     secureJsonData:
-      password: admin
-    database: wheelOfLifeDB
+      password: ${POSTGRES_PASSWORD}
     jsonData:
-      sslmode: disable
-    isDefault: true
-    editable: false
+      sslmode: "disable"
