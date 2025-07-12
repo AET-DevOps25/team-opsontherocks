@@ -2,8 +2,23 @@ import { useEffect, useState } from "react";
 import { WheelOfLifeRadar } from "@/components/WheelOfLifeRadar";
 import { Button } from "@/components/ui/button";
 import { CategoryValue } from "@/types/categories";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Card,
+    CardHeader,
+    CardFooter,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+// Type-safe message definition
+type ChatMessage = {
+    role: "user" | "assistant";
+    content: string;
+};
 
 const mockCategories: CategoryValue[] = [
     { name: "Career", value: 10, color: "#8b5cf6" },
@@ -27,6 +42,35 @@ export default function ResultsPage() {
     const [feedback, setFeedback] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("feedback");
+    const [chatInput, setChatInput] = useState("");
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+    const sendMessage = async () => {
+        if (!chatInput.trim()) return;
+
+        const newMessages: ChatMessage[] = [...messages, { role: "user", content: chatInput }];
+        setMessages(newMessages);
+        setChatInput("");
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${SERVER}/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ message: chatInput }),
+            });
+
+            const data = await res.json();
+
+            setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+        } catch (err) {
+            console.error("Chat error:", err);
+            setMessages([...newMessages, { role: "assistant", content: "❌ Failed to get response." }]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchFeedback = async () => {
@@ -109,12 +153,41 @@ export default function ResultsPage() {
                                     <CardDescription>Talk to your AI coach</CardDescription>
                                 </CardHeader>
                                 <CardContent className="grid gap-6">
-                                    <div className="text-gray-500 italic">
-                                        Chat feature coming soon...
+                                    <ScrollArea className="h-96 pr-4 border rounded-md p-3">
+                                        <div className="flex flex-col space-y-3">
+                                            {messages.map((msg, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`p-3 rounded-xl max-w-[75%] whitespace-pre-wrap text-sm ${
+                                                        msg.role === "user"
+                                                            ? "bg-blue-100 self-end text-right"
+                                                            : "bg-gray-100 self-start text-left"
+                                                    }`}
+                                                >
+                                                    {msg.content}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            placeholder="Ask your AI coach..."
+                                            value={chatInput}
+                                            onChange={(e) => setChatInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && !loading) sendMessage();
+                                            }}
+                                            disabled={loading}
+                                        />
+                                        <Button onClick={sendMessage} disabled={loading}>
+                                            {loading ? "..." : "Send"}
+                                        </Button>
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button variant="secondary">Close</Button>
+                                    <Button variant="secondary" onClick={() => setActiveTab("feedback")}>
+                                        Back to Feedback
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
