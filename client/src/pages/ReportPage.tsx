@@ -61,6 +61,7 @@ export default function ReportPage() {
             }
 
             setSubmitMessage("✅ Full report submitted successfully.");
+            navigate('/results');
         } catch (err: any) {
             console.error("[handleGenerateReport]", err);
             setSubmitMessage(`❌ ${err.message || "An unexpected error occurred."}`);
