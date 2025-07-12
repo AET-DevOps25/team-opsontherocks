@@ -166,4 +166,13 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reportService.addOrUpdate(newReport));
     }
+    @GetMapping("/users/me/reports/this-week")
+    public ResponseEntity<?> getThisWeeksReport(@AuthenticationPrincipal String email) {
+        LocalDate today = LocalDate.now();
+        int currentWeek = today.get(WeekFields.ISO.weekOfWeekBasedYear());
+        int currentYear = today.getYear();
+
+
+        return getReport(currentYear,currentWeek,email);
+    }
 }
