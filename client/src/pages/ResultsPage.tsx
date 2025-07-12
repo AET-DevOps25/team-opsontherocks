@@ -181,6 +181,7 @@ export default function ResultsPage() {
                                         />
                                         <Button onClick={sendMessage} disabled={loading}>
                                             {loading ? "..." : "Send"}
+
                                         </Button>
                                     </div>
                                 </CardContent>
