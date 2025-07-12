@@ -53,7 +53,6 @@ export default function ReportPage() {
                 },
                 body: JSON.stringify(payload)
             });
-            navigate('/results');
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));

@@ -34,4 +34,5 @@ public class ReportService {
     public void delete(String email, int week, int year) {
         reportRepository.deleteByCalendarWeekAndYearAndUserEmail(week, year, email);
     }
+
 }
