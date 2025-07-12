@@ -179,7 +179,8 @@ export default function ResultsPage() {
                                             }}
                                             disabled={loading}
                                         />
-                                        <Button onClick={sendMessage} disabled={loading}>
+                                        <Button onClick={sendMessage} disabled={loading}
+                                                className="h-9 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white shadow hover:scale-105 transition">
                                             {loading ? "..." : "Send"}
 
                                         </Button>
