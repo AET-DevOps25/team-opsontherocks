@@ -7,6 +7,8 @@ import {Textarea} from "@/components/ui/textarea";
 import {useCategories} from "@/hooks/useCategories";
 import {WheelOfLifeRadar} from "@/components/WheelOfLifeRadar";
 import {getISOWeek} from "date-fns";
+import { useNavigate } from 'react-router-dom';
+
 
 const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
@@ -15,6 +17,7 @@ export default function ReportPage() {
     const [notes, setNotes] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState("");
+    const navigate = useNavigate();
 
     const handleChange = (idx: number, name: string, value: number) => {
         setValues((prev) => {
@@ -50,6 +53,7 @@ export default function ReportPage() {
                 },
                 body: JSON.stringify(payload)
             });
+            navigate('/results');
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));

@@ -1,9 +1,10 @@
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
 import ReportPage from "@/pages/ReportPage";
+import ResultsPage from "@/pages/ResultsPage";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -95,6 +96,14 @@ function AppRoutes() {
             <Route
                 path="*"
                 element={<Navigate to={isAuthenticated ? '/' : '/auth'} replace />}
+            />
+            <Route path="/results"
+                   element={isAuthenticated ? (
+                <ResultsPage />
+                   ) : (
+                       <Navigate to="/auth" replace />
+                   )
+            }
             />
         </Routes>
     );
