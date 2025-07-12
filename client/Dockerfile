@@ -19,7 +19,7 @@ COPY . ./
 RUN npm run build
 
 # Stage 2: serve the built assets
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Install a lightweight static server
