@@ -106,6 +106,17 @@ function AppRoutes() {
             />
 
             <Route
+                path="/results"
+                element={
+                    isAuthenticated ? (
+                        <ResultsPage />
+                    ) : (
+                        <Navigate to="/auth" replace />
+                    )
+                }
+            />
+
+            <Route
                 path="/report"
                 element={
                     isAuthenticated ? (
