@@ -31,6 +31,8 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
     }));
 
     const renderDot = (props: any) => {
+        if(readOnly) return null; // Only hide interactivity when explicitly told
+        
         const { index } = props as { index: number };
         const slice = safeCats[index];
         if (!slice) return null;
