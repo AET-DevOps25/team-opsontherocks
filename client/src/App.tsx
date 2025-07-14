@@ -6,6 +6,7 @@ import Settings from "@/pages/Settings";
 import ReportPage from "@/pages/ReportPage";
 import { Report } from "@/hooks/useReports";
 import { CategoryValue } from "@/types/categories";
+import ResultsPage from "@/pages/ResultsPage";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -130,6 +131,7 @@ function AppRoutes() {
                     )
                 }
             />
+            
 
             <Route
                 path="*"
