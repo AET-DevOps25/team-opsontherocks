@@ -1,16 +1,18 @@
-# langchain-service/Dockerfile
+# genai/Dockerfile
 FROM python:3.11-slim
 
 # Create app directory
 WORKDIR /app
 
-# Install deps
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
-COPY app.py .
+# Copy entire source code
+COPY . .
 
-# Expose port and run with Gunicorn for production
+# Expose Flask app port
 EXPOSE 5001
+
+# Run with Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app", "--workers", "4"]
