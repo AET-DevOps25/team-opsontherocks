@@ -141,6 +141,17 @@ export default function ReportPage({ initialData, initialNotes = "", onBack }: R
                     {submitMessage && (
                         <p className="text-sm text-gray-700 italic">{submitMessage}</p>
                     )}
+
+                    {reportGenerated && (
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={() => navigate("/results")}
+                                className="mt-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow hover:scale-105 transition"
+                            >
+                                Show Results →
+                            </Button>
+                        </div>
+                    )}
                 </section>
             </main>
         </div>
