@@ -8,6 +8,8 @@ import {useCategories} from "@/hooks/useCategories";
 import {WheelOfLifeRadar} from "@/components/WheelOfLifeRadar";
 import {getISOWeek} from "date-fns";
 import {CategoryValue} from "@/types/categories";
+import { useNavigate } from "react-router-dom";
+
 
 const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
@@ -23,6 +25,12 @@ export default function ReportPage({ initialData, initialNotes = "", onBack }: R
     const [notes, setNotes] = useState(initialNotes);
     const [submitting, setSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState("");
+    const navigate = useNavigate();
+    const [reportGenerated, setReportGenerated] = useState(false);
+
+
+
+
 
     // If no initial data is provided, use the fetched data
     useEffect(() => {
@@ -79,6 +87,7 @@ export default function ReportPage({ initialData, initialNotes = "", onBack }: R
             }
 
             setSubmitMessage("✅ Full report submitted successfully.");
+            setReportGenerated(true);
         } catch (err: any) {
             console.error("[handleGenerateReport]", err);
             setSubmitMessage(`❌ ${err.message || "An unexpected error occurred."}`);
@@ -138,9 +147,21 @@ export default function ReportPage({ initialData, initialNotes = "", onBack }: R
                             <FileText className="mr-2 h-4 w-4"/> Generate Report
                         </Button>
                     </div>
+                    {reportGenerated && (
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={() => navigate("/results")}
+                                className="bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white shadow hover:scale-105 transition"
+                            >
+                                Show Results →
+                            </Button>
+                        </div>
+                    )}
                     {submitMessage && (
                         <p className="text-sm text-gray-700 italic">{submitMessage}</p>
                     )}
+
+
                 </section>
             </main>
         </div>

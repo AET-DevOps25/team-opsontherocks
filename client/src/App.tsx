@@ -6,6 +6,7 @@ import Settings from "@/pages/Settings";
 import ReportPage from "@/pages/ReportPage";
 import { Report } from "@/hooks/useReports";
 import { CategoryValue } from "@/types/categories";
+import ResultsPage from "@/pages/ResultsPage";
 
 const serverBase = import.meta.env.VITE_SERVER_URL;
 
@@ -106,11 +107,22 @@ function AppRoutes() {
             />
 
             <Route
+                path="/results"
+                element={
+                    isAuthenticated ? (
+                        <ResultsPage />
+                    ) : (
+                        <Navigate to="/auth" replace />
+                    )
+                }
+            />
+
+            <Route
                 path="/report"
                 element={
                     isAuthenticated ? (
-                        <ReportPage 
-                            onBack={handleBackToDashboard} 
+                        <ReportPage
+                            onBack={handleBackToDashboard}
                             initialData={selectedReport ? convertReportToCategoryValues(selectedReport) : undefined}
                             initialNotes={selectedReport?.notes || ""}
                         />
@@ -119,6 +131,7 @@ function AppRoutes() {
                     )
                 }
             />
+
 
             <Route
                 path="*"
