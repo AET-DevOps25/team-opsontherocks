@@ -26,7 +26,7 @@ type Report = {
     chat?: { message: string; sender: "USER" | "AI" }[];
 };
 
-const GENAI_SERVER = import.meta.env.VITE_GENAI_SERVER_URL as string; //genai server
+const GENAI_SERVER = import.meta.env.VITE_GENAI_URL as string; //genai server
 //const SERVER = import.meta.env.VITE_SERVER_URL as string; // WheelOfLife server
 
 export default function ResultsPage() {
