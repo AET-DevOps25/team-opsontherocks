@@ -15,12 +15,14 @@ import { DraggableRadarDot } from "@/components/DraggableRadarDot";
 
 interface Props {
     categories?: CategoryValue[];
-    onChange: (idx: number, name: string, value: number) => void;
+    onChange?: (idx: number, name: string, value: number) => void;
+    readOnly?: boolean;
 }
 
 export const WheelOfLifeRadar: React.FC<Props> = ({
                                                       categories = [],
                                                       onChange,
+                                                      readOnly
                                                   }) => {
     const safeCats = Array.isArray(categories) ? categories : [];
 
@@ -31,6 +33,8 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
     }));
 
     const renderDot = (props: any) => {
+        if (readOnly) return null;
+
         const { index } = props as { index: number };
         const slice = safeCats[index];
         if (!slice) return null;
@@ -41,7 +45,7 @@ export const WheelOfLifeRadar: React.FC<Props> = ({
                 index={index}
                 total={safeCats.length}
                 color={slice.color}
-                onChange={(v: number) => onChange(index, slice.name, v)}
+                onChange={(v: number) => onChange?.(index, slice.name, v)}
             />
         );
     };

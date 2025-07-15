@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { WheelOfLifeRadar } from "@/components/WheelOfLifeRadar";
 import { Button } from "@/components/ui/button";
 import { CategoryValue } from "@/types/categories";
+import { useReports } from "@/hooks/useReports";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Card,
@@ -26,7 +27,7 @@ type Report = {
 };
 
 const GENAI_SERVER = import.meta.env.VITE_GENAI_SERVER_URL as string; //genai server
-const SERVER = import.meta.env.VITE_SERVER_URL as string; // WheelOfLife server
+//const SERVER = import.meta.env.VITE_SERVER_URL as string; // WheelOfLife server
 
 export default function ResultsPage() {
     const [categories, setCategories] = useState<CategoryValue[]>([]);
@@ -36,6 +37,9 @@ export default function ResultsPage() {
     const [chatInput, setChatInput] = useState("");
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [report,setReport] = useState<Report |string | null>(null);
+    const { reports, loading: reportsLoading } = useReports();
+   // const [latestReport, setLatestReport] = useState<Report | null>(null);
+
 
     const sendMessage = async () => {
         if (!chatInput.trim()) return;
@@ -65,49 +69,23 @@ export default function ResultsPage() {
     };
 
     useEffect(() => {
-        const fetchThisWeeksReport = async () => {
-            setLoading(true);
+        if (reports.length === 0) return;
 
-            try {
-                const res = await fetch(`${SERVER}/users/me/reports/this-week`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
+        const latest = reports[0];
+        setReport(latest);
 
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    console.error("Failed to fetch report:", errorText);
-                    throw new Error(errorText || res.statusText);
-                }
-
-                const data = await res.json();
-                setReport(data);
-
-                if (data?.scores && typeof data.scores === "object") {
-                    const parsed = Object.entries(data.scores).map(([name, value]) => ({
-                        name,
-                        value: typeof value === "number" ? value : parseFloat(value as string),
-                        color: "#9410b9",
-                    }));
-                    setCategories(parsed);
-                } else {
-                    console.warn("No valid scores found in report.");
-                    setCategories([]);
-                }
-
-            } catch (err: any) {
-                console.error("Error fetching report:", err.message || err);
-                setReport("❌ Failed to load report.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchThisWeeksReport();
-    }, []);
+        if (latest?.scores && typeof latest.scores === "object") {
+            const parsed = Object.entries(latest.scores).map(([name, value]) => ({
+                name,
+                value: typeof value === "number" ? value : parseFloat(value as string),
+                color: "#9410b9",
+            }));
+            setCategories(parsed);
+        } else {
+            console.warn("No valid scores found in report.");
+            setCategories([]);
+        }
+    }, [reports]);
 
 
     useEffect(() => {
@@ -153,12 +131,7 @@ export default function ResultsPage() {
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Left: Radar Chart */}
                 <div className="flex-1 bg-white p-6 rounded-xl shadow-md max-w-2xl">
-                    <WheelOfLifeRadar
-                        categories={categories}
-                        onChange={() => {
-                            /* Read-only */
-                        }}
-                    />
+                    <WheelOfLifeRadar categories={categories} readOnly />
                 </div>
 
                 {/* Right: Feedback/Chat Tabs */}
