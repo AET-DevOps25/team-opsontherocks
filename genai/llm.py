@@ -1,99 +1,76 @@
-from openai import OpenAI
-import os, json
+from __future__ import annotations
+
+import os
+from typing import Any, Dict, List
+
+from openai import AuthenticationError, OpenAI
 from services.db import fetch_latest_report, prepare_tool_input
 
-# Initialize OpenAI client
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+_MODEL_CHAT = "gpt-3.5-turbo"
+_MODEL_FEEDBACK = "gpt-4"
 
-# Test if AI is connected
-response = client.chat.completions.create(
-    model="gpt-3.5-turbo",  # or "gpt-3.5-turbo", etc.
-    messages=[
-        {"role": "user", "content": "Write a confirmation that ai is connected."}
-    ]
-)
-print(response.choices[0].message.content)
+# Singleton OpenAI client
+def _create_client() -> OpenAI:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY not set")
+    return OpenAI(api_key=api_key)
 
-# Tool schema
-"""
-tools = [{
-    "type": "function",
-    "name": "generate_feedback",
-    "description": "Generate short helpful, constructive weekly feedback based on the user's self-reflection.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "notes": {"type": "string", "description": "User-written notes about their week."},
-            "scores": {"type": "object", "description": "Category-based numerical scores from 1-10."},
-            "chat": {"type": "array", "items": {"type": "string"}, "description": "Conversation between the user and AI over the week."}
-        },
-        "required": ["notes", "scores", "chat"],
-        "additionalProperties": False
-    }
-}]"""
+_client = _create_client()  
 
-# Main function that prepares data and gets AI feedback
+
+def _safe_completion(*, model: str, messages: List[Dict[str, str]]) -> str:
+    try:
+        resp = _client.chat.completions.create(model=model, messages=messages)
+        return resp.choices[0].message.content
+    except AuthenticationError as e:
+        raise RuntimeError("OpenAI authentication failed") from e
+    except Exception as e:
+        raise RuntimeError(f"OpenAI call failed: {e}") from e
+
+
+# ─── Public API ───────────────────────────────────────────────────────────────
+
 def generate_feedback_from_db(user_email: str) -> str:
     report = fetch_latest_report(user_email)
-
     if not report:
         return "No report found for this user."
 
     tool_input = prepare_tool_input(report)
-
-    response = client.chat.completions.create(
-        model="gpt-4",  # Use gpt-4 or gpt-3.5-turbo
-        messages=[
-            {
-                "role": "user",
-                "content": (
-                    "Based on the following weekly report data, provide helpful and constructive short feedback:\n"
-                    f"Notes: {tool_input['notes']}\n"
-                    f"Scores: {tool_input['scores']}\n"
-                    f"Chat: {tool_input['chat']}"
-                )
-            }
-        ]
+    prompt = (
+        "Based on the following weekly report data, provide helpful and "
+        "constructive short feedback:\n"
+        f"Notes: {tool_input['notes']}\n"
+        f"Scores: {tool_input['scores']}\n"
+        f"Chat: {tool_input['chat']}"
     )
+    return _safe_completion(model=_MODEL_FEEDBACK, messages=[{"role": "user", "content": prompt}])
 
-    return response.choices[0].message.content
 
-
-# Optional helper
-def generate_feedback(notes: str, scores: dict, chat: list[str]) -> str:
-    # This function can just wrap the logic or re-call OpenAI if needed
-    prompt = f"User notes: {notes}\nScores: {scores}\nChat history: {chat}\n\nGive helpful, encouraging weekly feedback."
-    followup = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}]
+def generate_feedback(notes: str, scores: Dict[str, Any], chat: List[str]) -> str:
+    prompt = (
+        f"User notes: {notes}\nScores: {scores}\nChat history: {chat}\n\n"
+        "Give helpful, encouraging weekly feedback."
     )
-    return followup.choices[0].message.content
-
-
-# Previously attempted tool calling logic (left for reference)
-# response = client.responses.create(
-#     model="gpt-3.5-turbo",
-#     input=[{"role": "user", "content": "evaluate the provided report or say im working"}],
-#     tools=tools
-# )
-# print(response.output)
-# print(response.model_dump_json(indent=2))
-
-# Confirm connection again (optional)
-print(response.choices[0].message.content)
-
-
+    return _safe_completion(model=_MODEL_FEEDBACK, messages=[{"role": "user", "content": prompt}])
 
 
 def chat_response(user_input: str) -> str:
-    # Simple back-and-forth with the assistant
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # or "gpt-4"
+    return _safe_completion(
+        model=_MODEL_CHAT,
         messages=[
             {"role": "system", "content": "You're a helpful assistant."},
-            {"role": "user", "content": user_input}
-        ]
+            {"role": "user", "content": user_input},
+        ],
     )
-    return response.choices[0].message.content
+
+
+# ─── Optional startup smoke test ───────────────────────────────────────────────
+
+if __name__ == "__main__":
+    print("Running quick connectivity check …")
+    try:
+        out = chat_response("Write a confirmation that the AI is connected.")
+        print("✅  OpenAI responded:", out)
+    except RuntimeError as err:
+        print("❌  OpenAI call failed:", err)
