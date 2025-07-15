@@ -31,6 +31,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation("com.h2database:h2:2.3.232")
 	implementation("org.springframework.security:spring-security-oauth2-jose:6.5.0")
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 }
 
 tasks.named('test') {

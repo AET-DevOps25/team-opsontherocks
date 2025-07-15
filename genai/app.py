@@ -3,9 +3,11 @@ import jwt
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flasgger import Swagger
 #from example import generate_feedback_from_db, chat_response
 from llm import generate_feedback_from_db, chat_response
 app = Flask(__name__)
+Swagger(app)
 CORS(app, resources={r"/*": {"origins": os.getenv('CLIENT_ORIGIN', 'http://localhost:5173')}}, supports_credentials=True)
 
 JWT_SECRET = os.getenv("JWT_SECRET")
@@ -35,11 +37,31 @@ def requires_auth(fn):
 @app.route("/hello", methods=["GET"])
 @requires_auth
 def hello_python():
+    """
+    A hello endpoint for the GenAI service.
+    ---
+    tags:
+      - GenAI
+    responses:
+      200:
+        description: Returns a hello message with the user's email
+    """
     return f"Hello {request.user_email}! (from GenAI service)", 200
 
 @app.route("/generate-feedback", methods=["GET"])
 @requires_auth
 def feedback_route():
+    """
+    Generate feedback for the current user from the latest report.
+    ---
+    tags:
+      - GenAI
+    responses:
+      200:
+        description: Returns generated feedback
+      500:
+        description: Error occurred
+    """
     try:
         user_email = request.user_email
         feedback = generate_feedback_from_db(user_email)
@@ -51,6 +73,30 @@ def feedback_route():
 @app.route("/chat", methods=["POST", "GET"])
 @requires_auth
 def chat_route():
+    """
+    Chat endpoint for GenAI service.
+    ---
+    tags:
+      - GenAI
+    parameters:
+      - name: message
+        in: query
+        type: string
+        required: false
+        description: Message to send to the AI (GET)
+      - name: message
+        in: body
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+        required: false
+        description: Message to send to the AI (POST)
+    responses:
+      200:
+        description: Returns AI reply
+    """
     if request.method == "POST":
         body = request.get_json()
         user_input = body.get("message", "")
@@ -61,6 +107,15 @@ def chat_route():
 
 @app.route("/health", methods=["GET"])
 def health():
+    """
+    Health check endpoint for GenAI service.
+    ---
+    tags:
+      - GenAI
+    responses:
+      200:
+        description: Service is healthy
+    """
     return jsonify({"status": "ok"}), 200
 
 

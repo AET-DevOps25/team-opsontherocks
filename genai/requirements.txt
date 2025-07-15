@@ -2,6 +2,7 @@
 # Web Framework
 Flask==3.1.0
 Flask-Cors==6.0.0
+flasgger==0.9.7.1
 gunicorn
 
 # Authentication

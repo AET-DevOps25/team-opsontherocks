@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.Collections;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -48,11 +51,13 @@ public class AuthController {
         return cb.build();
     }
 
+    @Operation(summary = "Health check for the authentication service")
     @GetMapping("/healthCheck")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Auth service running");
     }
 
+    @Operation(summary = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         if (!repo.existsById(req.getEmail())) {
@@ -72,6 +77,7 @@ public class AuthController {
                 .body("Registration succeeded");
     }
 
+    @Operation(summary = "Login a user")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
@@ -90,6 +96,7 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Logout the current user")
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
         ResponseCookie cookie = buildCookie("", 0);
