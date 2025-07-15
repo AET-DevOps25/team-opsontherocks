@@ -1,3 +1,5 @@
+//Tests the public health check endpoint and basic unauthorized access logic for the WheelOfLifeController
+// using MockMvc and Spring Security.
 package com.opsontherocks.wheel_of_life; // Match your test package structure
 
 import com.opsontherocks.wheel_of_life.controller.WheelOfLifeController;
