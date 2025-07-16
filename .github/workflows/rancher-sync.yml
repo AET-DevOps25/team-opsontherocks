@@ -16,7 +16,13 @@ jobs:
       - name: Set up kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Debug cluster info (optional)
+        run: |
+          kubectl config get-contexts
+          kubectl cluster-info
 
       - name: Install kubectl
         run: |
@@ -28,7 +34,10 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+      - name: Ensure namespace exists
+        run: kubectl get ns ge96wac-opsontherocks || kubectl create ns ge96wac-opsontherocks
+
       - name: Deploy using Helm
         run: |
           helm upgrade --install wheeloflife ./deployment/helm \
-            --namespace ge96wac-opsontherocks
+            --namespace ge96wac-opsontherocks --wait
