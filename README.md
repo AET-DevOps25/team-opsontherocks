@@ -116,3 +116,11 @@ Component Diagram
 
 ![Analysis Object Model](/images/AnalysisObjectModel.png)
 Analysis Object Model
+
+## API Documentation (OpenAPI/Swagger)
+
+You can explore and test the API endpoints for each service using OpenAPI documentation:
+
+- **Authentication Service:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **Wheel-of-Life Service:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
+- **GenAI Service:** [http://localhost:5001/apidocs](http://localhost:5001/apidocs)

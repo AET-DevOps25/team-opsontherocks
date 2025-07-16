@@ -31,6 +31,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation("com.h2database:h2:2.3.232")
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1' // Or a newer compatible version
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 }
 
 tasks.named('test') {
