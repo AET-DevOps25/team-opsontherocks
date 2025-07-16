@@ -8,7 +8,7 @@ namespace:
 
 client:
   image:
-    repository: ghcr.io/aet-devops25/team-opsontherocks/client:latest
+    repository: ghcr.io/aet-devops25/team-opsontherocks/client
     tag: latest
     pullPolicy: Always
   service:
