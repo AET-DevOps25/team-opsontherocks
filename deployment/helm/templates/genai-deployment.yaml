@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: genai
-  namespace: "ge96wac-opsontherocks"
+  namespace: "opsontherocks"
 spec:
   replicas: {{ .Values.genai.replicaCount }}
   selector:

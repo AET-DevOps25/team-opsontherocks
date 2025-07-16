@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server-auth
-  namespace: "ge96wac-opsontherocks"
+  namespace: "opsontherocks"
 spec:
   replicas: {{ .Values.serverAuth.replicaCount }}
   selector:

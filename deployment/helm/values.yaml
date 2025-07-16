@@ -1,6 +1,5 @@
-# Default values for your team project Helm chart.
 
-# Add your TUM ID (used in Ingress host and namespace)
+# Add TUM ID (used in Ingress host and namespace)
 tumid: ge96wac
 
 namespace:
@@ -16,6 +15,13 @@ client:
     port: 5173
     targetPort: 5173
   replicaCount: 1
+  env:
+    - name: VITE_SERVER_URL
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de
+    - name: VITE_AUTH_URL
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de/auth
+    - name: VITE_GENAI_URL
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de/genai
 
 serverAuth:
   image:
@@ -29,7 +35,7 @@ serverAuth:
   replicaCount: 1
   env:
     - name: SPRING_DATASOURCE_URL
-      value: jdbc:postgresql://postgres:5432/wheelOfLifeDB
+      value: jdbc:postgresql://postgres-postgresql:5432/wheelOfLifeDB
     - name: SPRING_DATASOURCE_USERNAME
       valueFrom:
         secretKeyRef:
@@ -45,7 +51,10 @@ serverAuth:
         secretKeyRef:
           name: jwt-secret
           key: secret
-
+    - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+      value: update
+    - name: SPRING_JPA_SHOW_SQL
+      value: "true"
 
 serverWheel:
   image:
@@ -59,7 +68,7 @@ serverWheel:
   replicaCount: 1
   env:
     - name: SPRING_DATASOURCE_URL
-      value: jdbc:postgresql://postgres:5432/wheelOfLifeDB
+      value: jdbc:postgresql://postgres-postgresql:5432/wheelOfLifeDB
     - name: SPRING_DATASOURCE_USERNAME
       valueFrom:
         secretKeyRef:
@@ -75,6 +84,10 @@ serverWheel:
         secretKeyRef:
           name: jwt-secret
           key: secret
+    - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+      value: update
+    - name: SPRING_JPA_SHOW_SQL
+      value: "true"
 
 genai:
   image:
@@ -94,6 +107,30 @@ genai:
         secretKeyRef:
           name: jwt-secret
           key: secret
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: genai-secret
+          key: OPENAI_API_KEY
+    - name: OPENAI_API_BASE
+      valueFrom:
+        secretKeyRef:
+          name: genai-secret
+          key: OPENAI_API_BASE
+    - name: OPENAI_MODEL
+      valueFrom:
+        secretKeyRef:
+          name: genai-secret
+          key: OPENAI_MODEL
+    - name: DATABASE_URL
+      value: postgresql://admin:admin@postgres:5432/wheelOfLifeDB
+
+grafana:
+  env:
+    - name: GRAFANA_USER
+      value: admin
+    - name: GRAFANA_PASSWORD
+      value: Vxk3ymezUnpvQqa3cHEVuXFBF7dmRMd2z1ZP8kP5bSs
 
 ingress:
   enabled: true
@@ -101,4 +138,5 @@ ingress:
   tls: true
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-
+  host: opsontherocks.student.k8s.aet.cit.tum.de
+  tlsSecret: opsontherocks-tls
