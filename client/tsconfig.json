@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["jest", "node"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]
@@ -13,6 +14,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src", "**/*.test.tsx"],
   "exclude": ["dist", "node_modules"]
 }

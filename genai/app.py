@@ -118,6 +118,10 @@ def health():
     """
     return jsonify({"status": "ok"}), 200
 
+@app.route("/test", methods=["GET"])
+def test_connection():
+    return {"status": "ok", "message": "GenAI service is running!"}, 200
+
 
 
 if __name__ == "__main__":
