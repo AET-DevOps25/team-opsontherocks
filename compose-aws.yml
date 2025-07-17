@@ -70,6 +70,7 @@ services:
       SPRING_JPA_SHOW_SQL: "true"
       CLIENT_ORIGIN: https://${CLIENT_HOST}
       JWT_SECRET: ${JWT_SECRET}
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`${AUTH_HOST}`)"

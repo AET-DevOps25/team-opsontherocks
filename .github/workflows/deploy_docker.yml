@@ -52,6 +52,8 @@
               # Public hosts (Traefik routes)
               #######################################
               CLIENT_HOST=client.${EC2_IP}.nip.io
+              CLIENT_ORIGIN=https://client.${EC2_IP}.nip.io
+
               WHEEL_OF_LIFE_HOST=wheel-of-life.${EC2_IP}.nip.io
               AUTH_HOST=authentication.${EC2_IP}.nip.io
               GENAI_HOST=genai.${EC2_IP}.nip.io
