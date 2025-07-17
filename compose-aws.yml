@@ -70,6 +70,7 @@ services:
       SPRING_JPA_SHOW_SQL: "true"
       CLIENT_ORIGIN: https://${CLIENT_HOST}
       JWT_SECRET: ${JWT_SECRET}
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`${AUTH_HOST}`)"
@@ -78,11 +79,7 @@ services:
       - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
 
   wheel-of-life:
     image: ghcr.io/${GITHUB_REPOSITORY}/wheel-of-life:latest
@@ -100,17 +97,14 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`${API_HOST}`)"
-      - "traefik.http.services.api.loadbalancer.server.port=8080"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wheel-of-life.rule=Host(`${WHEEL_OF_LIFE_HOST}`)"
+      - "traefik.http.services.wheel-of-life.loadbalancer.server.port=8080"
+      - "traefik.http.routers.wheel-of-life.entrypoints=websecure"
+      - "traefik.http.routers.wheel-of-life.tls.certresolver=letsencrypt"
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
+
 
   genai:
     image: ghcr.io/${GITHUB_REPOSITORY}/genai:latest
@@ -129,11 +123,6 @@ services:
       - "traefik.http.routers.genai.tls.certresolver=letsencrypt"
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   client:
     image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
@@ -143,6 +132,11 @@ services:
       - "traefik.http.services.client.loadbalancer.server.port=5173"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=letsencrypt"
+    environment:
+      - VITE_SERVER_URL=${VITE_SERVER_URL}
+      - VITE_AUTH_URL=${VITE_AUTH_URL}
+      - VITE_GENAI_URL=${VITE_GENAI_URL}
+
     networks:
       - app-network
 

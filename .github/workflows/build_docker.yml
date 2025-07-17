@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      #Should be read from GH vars instead, temporarily hardcoding it
+      EC2_PUBLIC_IP: 54.166.45.176
     strategy:
       matrix:
         service: [authentication, wheel-of-life, client, genai]
@@ -38,6 +41,7 @@ jobs:
 
       - name: Build and push Docker image (backend)
         uses: docker/build-push-action@v5
+        if: ${{ matrix.service != 'client' && matrix.service != 'genai' }}
         with:
           context: ./server/${{ matrix.service }}
           file: ./server/${{ matrix.service }}/Dockerfile
@@ -45,9 +49,17 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        if: ${{ matrix.service != 'client' && matrix.service != 'genai' }}
 
-      - name: Build and push Docker image (frontend/genai)
+      - name: Debug EC2_PUBLIC_IP and VITE URLs
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
+        run: |
+          echo "EC2_PUBLIC_IP = $EC2_PUBLIC_IP"
+          echo "VITE_SERVER_URL = https://wheel-of-life.${EC2_PUBLIC_IP}.nip.io"
+          echo "VITE_AUTH_URL   = https://auth.${EC2_PUBLIC_IP}.nip.io"
+          echo "VITE_GENAI_URL  = https://genai.${EC2_PUBLIC_IP}.nip.io"
+
+      - name: Build and push Docker image (client/genai)
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
@@ -56,4 +68,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
+          build-args: |
+            VITE_SERVER_URL=https://wheel-of-life.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL=https://authentication.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
+        
+

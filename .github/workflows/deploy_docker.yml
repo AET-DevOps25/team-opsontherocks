@@ -1,76 +1,119 @@
-name: Deploy current Docker images
+  name: Deploy current Docker images
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: {}
+  on:
+    push:
+      branches:
+        - main
+    workflow_dispatch: {}
 
-permissions:
-  contents: read
-  packages: write
-  id-token: write
+  permissions:
+    contents: read
+    packages: write
+    id-token: write
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: opsontherocks
-      url: "https://client.${{ vars.EC2_PUBLIC_IP }}.nip.io"
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      environment:
+        name: opsontherocks
+        url: "https://client.${{ vars.EC2_PUBLIC_IP }}.nip.io"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-      - name: Copy Docker Compose file to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ vars.EC2_PUBLIC_IP }}
-          username: ${{ vars.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          source: compose-aws.yml
-          target: /home/${{ vars.AWS_EC2_USER }}
+        - name: Copy Docker Compose file to EC2
+          uses: appleboy/scp-action@v0.1.7
+          with:
+            host: ${{ vars.EC2_PUBLIC_IP }}
+            username: ${{ vars.AWS_EC2_USER }}
+            key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+            source: compose-aws.yml
+            target: /home/${{ vars.AWS_EC2_USER }}
 
-      - name: Generate .env.prod on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          EC2_IP: ${{ vars.EC2_PUBLIC_IP }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
-          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        with:
-          host: ${{ vars.EC2_PUBLIC_IP }}
-          username: ${{ vars.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
-          script: |
-            cat > .env.prod <<EOF
-            CLIENT_HOST=client.${EC2_IP}.nip.io
-            SERVER_HOST=api.${EC2_IP}.nip.io
-            PUBLIC_API_URL=https://api.${EC2_IP}.nip.io/api
-            POSTGRES_USER=${POSTGRES_USER}
-            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            GRAFANA_HOST=grafana.${EC2_IP}.nip.io
-            GRAFANA_USER=${GRAFANA_USER}
-            GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
-            JWT_SECRET=${JWT_SECRET}
-            EOF
+        - name: Generate .env file on EC2
+          uses: appleboy/ssh-action@v1.0.3
+          env:
+            EC2_IP: ${{ vars.EC2_PUBLIC_IP }}
+            POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            GRAFANA_USER: ${{ vars.GRAFANA_USER }}
+            GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+            JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          with:
+            host: ${{ vars.EC2_PUBLIC_IP }}
+            username: ${{ vars.AWS_EC2_USER }}
+            key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+            envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET,OPENAI_API_KEY
+            script: |
+              cat > .env <<EOF
+              #######################################
+              # Public hosts (Traefik routes)
+              #######################################
+              CLIENT_HOST=client.${EC2_IP}.nip.io
+              CLIENT_ORIGIN=https://client.${EC2_IP}.nip.io
 
-      - name: Deploy containers with Docker Compose
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-          TAG: ${{ github.sha }}
-        with:
-          host: ${{ vars.EC2_PUBLIC_IP }}
-          username: ${{ vars.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          envs: GITHUB_REPOSITORY,GITHUB_REPOSITORY_OWNER,TAG
-          script: |
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            export GITHUB_REPOSITORY="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
-            export GITHUB_REPOSITORY_OWNER="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
-            docker compose --env-file .env.prod -f compose-aws.yml up --pull always -d --remove-orphans
+              WHEEL_OF_LIFE_HOST=wheel-of-life.${EC2_IP}.nip.io
+              AUTH_HOST=authentication.${EC2_IP}.nip.io
+              GENAI_HOST=genai.${EC2_IP}.nip.io
+              GRAFANA_HOST=grafana.${EC2_IP}.nip.io
+
+              #######################################
+              # Frontend runtime environment
+              #######################################
+              VITE_SERVER_URL=https://wheel-of-life.${EC2_IP}.nip.io
+              VITE_AUTH_URL=https://authentication.${EC2_IP}.nip.io
+              VITE_GENAI_URL=https://genai.${EC2_IP}.nip.io
+
+              #######################################
+              # Postgres
+              #######################################
+              POSTGRES_USER=${POSTGRES_USER}
+              POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+              DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/wheelOfLifeDB
+
+              #######################################
+              # Grafana
+              #######################################
+              GRAFANA_USER=${GRAFANA_USER}
+              GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+
+              #######################################
+              # Secrets
+              #######################################
+              JWT_SECRET=${JWT_SECRET}
+
+              #######################################
+              # OpenAI (for genai)
+              #######################################
+              OPENAI_API_KEY=${OPENAI_API_KEY}
+              OPENAI_API_BASE=https://api.openai.com/v1
+              OPENAI_MODEL=gpt-4o
+
+              #######################################
+              # GitHub metadata
+              #######################################
+              GITHUB_REPOSITORY=${{ github.repository }}
+              GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+              TAG=latest
+              SPRING_PROFILES_ACTIVE=prod
+              EOF
+        
+
+        - name: Deploy containers with Docker Compose
+          uses: appleboy/ssh-action@v1.0.3
+          env:
+            GITHUB_REPOSITORY: ${{ github.repository }}
+            GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+            TAG: ${{ github.sha }}
+          with:
+            host: ${{ vars.EC2_PUBLIC_IP }}
+            username: ${{ vars.AWS_EC2_USER }}
+            key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+            envs: GITHUB_REPOSITORY,GITHUB_REPOSITORY_OWNER,TAG
+            script: |
+              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              export GITHUB_REPOSITORY="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+              export GITHUB_REPOSITORY_OWNER="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+              docker compose -f compose-aws.yml up --pull always -d --remove-orphans
