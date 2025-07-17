@@ -74,73 +74,73 @@ jobs:
       - name: Run Client Tests
         run: npm test
 
-build:
-  runs-on: ubuntu-latest
-  env:
-    #Should be read from GH vars instead, temporarily hardcoding it
-    EC2_PUBLIC_IP: 54.166.45.176
-  strategy:
-    matrix:
-      service: [ authentication, wheel-of-life, client, genai ]
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    env:
+      #Should be read from GH vars instead, temporarily hardcoding it
+      EC2_PUBLIC_IP: 54.166.45.176
+    strategy:
+      matrix:
+        service: [ authentication, wheel-of-life, client, genai ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Log in to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
-        tags: |
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=ref,event=branch
-          type=ref,event=pr
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
 
-    - name: Build and push Docker image (backend)
-      uses: docker/build-push-action@v5
-      if: ${{ matrix.service != 'client' && matrix.service != 'genai' }}
-      with:
-        context: ./server/${{ matrix.service }}
-        file: ./server/${{ matrix.service }}/Dockerfile
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push Docker image (backend)
+        uses: docker/build-push-action@v5
+        if: ${{ matrix.service != 'client' && matrix.service != 'genai' }}
+        with:
+          context: ./server/${{ matrix.service }}
+          file: ./server/${{ matrix.service }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-    - name: Debug EC2_PUBLIC_IP and VITE URLs
-      if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
-      run: |
-        echo "EC2_PUBLIC_IP = $EC2_PUBLIC_IP"
-        echo "VITE_SERVER_URL = https://wheel-of-life.${EC2_PUBLIC_IP}.nip.io"
-        echo "VITE_AUTH_URL   = https://auth.${EC2_PUBLIC_IP}.nip.io"
-        echo "VITE_GENAI_URL  = https://genai.${EC2_PUBLIC_IP}.nip.io"
+      - name: Debug EC2_PUBLIC_IP and VITE URLs
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
+        run: |
+          echo "EC2_PUBLIC_IP = $EC2_PUBLIC_IP"
+          echo "VITE_SERVER_URL = https://wheel-of-life.${EC2_PUBLIC_IP}.nip.io"
+          echo "VITE_AUTH_URL   = https://auth.${EC2_PUBLIC_IP}.nip.io"
+          echo "VITE_GENAI_URL  = https://genai.${EC2_PUBLIC_IP}.nip.io"
 
-    - name: Build and push Docker image (client/genai)
-      if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
-      uses: docker/build-push-action@v5
-      with:
-        context: ./${{ matrix.service }}
-        file: ./${{ matrix.service }}/Dockerfile
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        build-args: |
-          VITE_SERVER_URL=https://wheel-of-life.${{ env.EC2_PUBLIC_IP }}.nip.io
-          VITE_AUTH_URL=https://authentication.${{ env.EC2_PUBLIC_IP }}.nip.io
-          VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
-        
-
+      - name: Build and push Docker image (client/genai)
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_SERVER_URL=https://wheel-of-life.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL=https://authentication.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
+          
+  
