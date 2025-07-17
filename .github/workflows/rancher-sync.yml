@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set image tag
+        run: echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+
       - name: Set up kubeconfig
         run: |
           mkdir -p ~/.kube
@@ -34,4 +37,6 @@ jobs:
       - name: Deploy using Helm
         run: |
           helm upgrade --install wheeloflife ./deployment/helm \
-            --namespace opsontherocks --wait
+            --namespace opsontherocks \
+            --set image.tag=${{ github.sha }} \
+            --wait
