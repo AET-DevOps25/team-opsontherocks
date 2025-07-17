@@ -48,6 +48,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Docker image (frontend/genai)
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
@@ -59,5 +60,6 @@ jobs:
           build-args: |
             VITE_SERVER_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io
             VITE_AUTH_URL=https://auth.${{ vars.EC2_PUBLIC_IP }}.nip.io
-            VITE_GENAI_URL=https://genai.${{ vars.EC2_PUBLIC_IP }}.nip.io        
+            VITE_GENAI_URL=https://genai.${{ vars.EC2_PUBLIC_IP }}.nip.io
+        
 
