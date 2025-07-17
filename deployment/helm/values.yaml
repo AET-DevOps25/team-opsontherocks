@@ -17,11 +17,11 @@ client:
   replicaCount: 1
   env:
     - name: VITE_SERVER_URL
-      value: https://wheel-of-life.54.166.45.176.nip.io
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de
     - name: VITE_AUTH_URL
-      value: https://authentication.54.166.45.176.nip.io
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de/auth
     - name: VITE_GENAI_URL
-      value: https://genai.54.166.45.176.nip.io
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de/genai
 
 serverAuth:
   image:
@@ -55,8 +55,8 @@ serverAuth:
       value: update
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
-    - name: CLIENT_ORIGIN
-      value: https://client.54.166.45.176.nip.io
+    - name: CORS_ALLOWED_ORIGINS
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de
 
 
 serverWheel:
@@ -91,8 +91,6 @@ serverWheel:
       value: update
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
-    - name: CLIENT_ORIGIN
-      value: https://client.54.166.45.176.nip.io
 
 genai:
   image:
@@ -127,8 +125,6 @@ genai:
           key: OPENAI_MODEL
     - name: DATABASE_URL
       value: postgresql://admin:admin@postgres:5432/wheelOfLifeDB
-    - name: CLIENT_ORIGIN
-      value: https://client.54.166.45.176.nip.io
 
 grafana:
   env:
@@ -139,9 +135,9 @@ grafana:
 
 ingress:
   enabled: true
-  tlsSecret: opsontherocks-tls
+  className: "nginx"
+  tls: true
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  host: opsontherocks.student.k8s.aet.cit.tum.de
+  tlsSecret: opsontherocks-tls
