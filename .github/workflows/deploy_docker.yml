@@ -35,9 +35,9 @@
           uses: appleboy/ssh-action@v1.0.3
           env:
             EC2_IP: ${{ vars.EC2_PUBLIC_IP }}
-            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+            POSTGRES_USER: ${{ vars.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-            GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
+            GRAFANA_USER: ${{ vars.GRAFANA_USER }}
             GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
