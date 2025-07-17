@@ -122,21 +122,22 @@ Individuals interested in personal development, emotional wellness, and self-ref
 - JWT for secure inter-service communication
 
 
-##  Monitoring & Metrics
+## Monitoring & Metrics
 
-- **Grafana**: `http://localhost:3000`
-- **Prometheus**: `http://localhost:9090`
+Prometheus collects metrics from backend services, and Grafana displays them via real-time dashboards.
 
-Metrics exposed from:
-- `wheel-of-life` (CPU usage, total reports created, uptime)
+### Access
 
+- **Grafana**: [http://localhost:3000](http://localhost:3000)
+- **Prometheus**: [http://localhost:9090](http://localhost:9090)
 
-how grafan and promehteus 2 sentences work
+(Default Grafana login: `admin` / `admin`)
 
-we have a grafana foldera and a #prometheus folder
-(use code)
+### Metrics Example
 
+- `wheel-of-life`: total reports created, uptime, CPU/memory usage
 
+Config files are in `./prometheus/` and `./grafana/`.
 
 # Diagrams
 
