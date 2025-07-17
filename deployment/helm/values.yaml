@@ -55,7 +55,7 @@ serverAuth:
       value: update
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
-    - name: CORS_ALLOWED_ORIGINS
+    - name: CLIENT_ORIGIN
       value: https://opsontherocks.student.k8s.aet.cit.tum.de
 
 
