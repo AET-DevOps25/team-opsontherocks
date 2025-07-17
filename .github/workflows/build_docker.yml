@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      EC2_PUBLIC_IP: ${{ vars.EC2_PUBLIC_IP }}
     strategy:
       matrix:
         service: [authentication, wheel-of-life, client, genai]
@@ -47,6 +49,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Debug EC2_PUBLIC_IP and VITE URLs
+        if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
+        run: |
+          echo "EC2_PUBLIC_IP = $EC2_PUBLIC_IP"
+          echo "VITE_SERVER_URL = https://api.${EC2_PUBLIC_IP}.nip.io"
+          echo "VITE_AUTH_URL   = https://auth.${EC2_PUBLIC_
+
       - name: Build and push Docker image (frontend/genai)
         if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
         uses: docker/build-push-action@v5
@@ -58,8 +67,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_SERVER_URL=https://api.${{ vars.EC2_PUBLIC_IP }}.nip.io
-            VITE_AUTH_URL=https://auth.${{ vars.EC2_PUBLIC_IP }}.nip.io
-            VITE_GENAI_URL=https://genai.${{ vars.EC2_PUBLIC_IP }}.nip.io
+            VITE_SERVER_URL=https://api.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL=https://auth.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
         
 
