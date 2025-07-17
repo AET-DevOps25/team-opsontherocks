@@ -103,6 +103,35 @@ Individuals interested in personal development, emotional wellness, and self-ref
 
 # Tech Stack
 
+| Layer         | Technology               |
+|---------------|---------------------------|
+| Frontend      | Vite + React              |
+| Backend       | Spring Boot (Java)        |
+| AI Service    | Node.js + OpenAI API      |
+| Auth          | Spring Security + JWT     |
+| Database      | PostgreSQL                |
+| Containerization | Docker & Docker Compose |
+| Monitoring    | Prometheus + Grafana      |
+| Reverse Proxy | Traefik (for AWS deploy)  |
+
+
+
+## Authentication
+
+- OAuth-based login (configurable)
+- JWT for secure inter-service communication
+
+
+##  Monitoring & Metrics
+
+- **Grafana**: `http://localhost:3000`
+- **Prometheus**: `http://localhost:9090`
+
+Metrics exposed from:
+- `wheel-of-life` (CPU, memory, HTTP latency)
+- `authentication`
+- `genai`
+
 
 # Diagrams
 
@@ -124,3 +153,85 @@ You can explore and test the API endpoints for each service using OpenAPI docume
 - **Authentication Service:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - **Wheel-of-Life Service:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
 - **GenAI Service:** [http://localhost:5001/apidocs](http://localhost:5001/apidocs)
+
+
+## ⚙️ Getting Started (Local)
+
+1. Clone the repository and create a `.env` file using `.env.example` as a reference.
+2. Start the development environment:
+
+```bash
+docker-compose up --build
+```
+
+3. Access the services:
+
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Wheel of Life Service: [http://localhost:8080](http://localhost:8080)
+- Authentication Service: [http://localhost:8081](http://localhost:8081)
+- GenAI Service: [http://localhost:5001](http://localhost:5001)
+
+---
+
+## 🌐 Deployment (AWS with Traefik)
+
+For production deployment, use:
+
+```bash
+docker-compose -f compose-aws.yml up -d
+```
+
+Make sure the following environment variables are configured:
+
+- `CLIENT_HOST`
+- `AUTH_HOST`
+- `GENAI_HOST`
+- `GRAFANA_HOST`
+- `JWT_SECRET`
+- `OPENAI_API_KEY`, etc.
+
+---
+
+## Environment Variables
+
+Reference `.env.example` for required variables. Key ones include:
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+- `JWT_SECRET`
+- `VITE_SERVER_URL`, `VITE_AUTH_URL`, `VITE_GENAI_URL`
+- `OPENAI_API_KEY`, `OPENAI_MODEL`
+- `GRAFANA_USER`, `GRAFANA_PASSWORD`
+
+---
+
+## Project Structure
+
+```
+├── client/                  # Frontend (Vite + React)
+├── server/
+│   ├── wheel-of-life/       # Self-reflection microservice (Spring Boot)
+│   └── authentication/      # Auth microservice (Spring Boot)
+├── genai/                   # AI assistant backend (Node.js)
+├── grafana/                 # Monitoring dashboards
+├── prometheus/              # Prometheus config for scraping metrics
+├── docker-compose.yml       # Local deployment
+├── compose-aws.yml          # Production deployment (Traefik + HTTPS)
+└── .env                     # Environment configuration
+```
+
+---
+
+## License
+
+Licensed under the MIT License.
+---
+
+## Authors
+
+Developed by **Team OpsOnTheRocks** – TU Munich
+
+---
+
+## Contact
+
+For questions, contributions, or suggestions — feel free to reach out or open an issue.
