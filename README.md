@@ -128,9 +128,14 @@ Individuals interested in personal development, emotional wellness, and self-ref
 - **Prometheus**: `http://localhost:9090`
 
 Metrics exposed from:
-- `wheel-of-life` (CPU, memory, HTTP latency)
-- `authentication`
-- `genai`
+- `wheel-of-life` (CPU usage, total reports created, uptime)
+
+
+how grafan and promehteus 2 sentences work
+
+we have a grafana foldera and a #prometheus folder
+(use code)
+
 
 
 # Diagrams

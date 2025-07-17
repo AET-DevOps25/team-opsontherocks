@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    #depends-on: test with job called test
     runs-on: ubuntu-latest
     env:
       #Should be read from GH vars instead, temporarily hardcoding it

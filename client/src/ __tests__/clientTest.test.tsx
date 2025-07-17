@@ -12,6 +12,12 @@ describe("Mock client test", () => {
         expect(screen.getByText(/Progress Report/i)).toBeInTheDocument();
     });
 });
+
+
+
+
+//use api/testendpoints for the test if it works
+
 // src/__tests__/clientTest.test.tsx
 //
 // import "@testing-library/jest-dom";
