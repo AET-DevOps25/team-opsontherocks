@@ -2,6 +2,8 @@ package com.opsontherocks.authentication.security;
 
 import com.opsontherocks.authentication.user.User;
 import com.opsontherocks.authentication.user.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.Collections;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 @RestController
@@ -39,7 +39,10 @@ public class AuthController {
         ResponseCookie.ResponseCookieBuilder cb = ResponseCookie.from("JWT_TOKEN", token)
                 .httpOnly(true)
                 .path("/")
-                .maxAge(maxAgeSeconds);
+                .maxAge(maxAgeSeconds)
+                .secure(true)
+                .sameSite("None");
+        ;
 
         if (isProd()) {
             cb.secure(true)
