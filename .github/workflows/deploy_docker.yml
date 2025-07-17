@@ -77,4 +77,4 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             export GITHUB_REPOSITORY="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
             export GITHUB_REPOSITORY_OWNER="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
-            docker compose --env-file .env.prod -f compose-aws.yml up --pull always -d --remove-orphans
+            docker compose -f compose-aws.yml up --pull always -d --remove-orphans
