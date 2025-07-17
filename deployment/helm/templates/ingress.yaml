@@ -1,23 +1,21 @@
 {{- if .Values.ingress.enabled }}
+
+{{/* CLIENT INGRESS */}}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: opsontherocks-ingress
+  name: client-ingress
   namespace: {{ .Release.Namespace }}
-  {{- $annotations := .Values.ingress.annotations | default dict }}
-  {{- if $annotations }}
   annotations:
-    {{- toYaml $annotations | nindent 4 }}
-  {{- end }}
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
 spec:
-  {{- if .Values.ingress.tls }}
   tls:
     - hosts:
-        - "{{ .Values.ingress.host }}"
-      secretName: "{{ .Values.ingress.tlsSecret }}"
-  {{- end }}
+        - "client.54.166.45.176.nip.io"
+      secretName: {{ .Values.ingress.tlsSecret }}
   rules:
-    - host: "{{ .Values.ingress.host }}"
+    - host: "client.54.166.45.176.nip.io"
       http:
         paths:
           - path: /
@@ -28,7 +26,26 @@ spec:
                 port:
                   number: {{ .Values.client.service.port }}
 
-          - path: /auth
+---
+
+{{/* AUTH INGRESS */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: auth-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+    - hosts:
+        - "authentication.54.166.45.176.nip.io"
+      secretName: {{ .Values.ingress.tlsSecret }}
+  rules:
+    - host: "authentication.54.166.45.176.nip.io"
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -36,7 +53,26 @@ spec:
                 port:
                   number: {{ .Values.serverAuth.service.port }}
 
-          - path: /wheel
+---
+
+{{/* WHEEL INGRESS */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wheel-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+    - hosts:
+        - "wheel-of-life.54.166.45.176.nip.io"
+      secretName: {{ .Values.ingress.tlsSecret }}
+  rules:
+    - host: "wheel-of-life.54.166.45.176.nip.io"
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -44,11 +80,31 @@ spec:
                 port:
                   number: {{ .Values.serverWheel.service.port }}
 
-          - path: /genai
+---
+
+{{/* GENAI INGRESS */}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: genai-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+    - hosts:
+        - "genai.54.166.45.176.nip.io"
+      secretName: {{ .Values.ingress.tlsSecret }}
+  rules:
+    - host: "genai.54.166.45.176.nip.io"
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: genai
                 port:
                   number: {{ .Values.genai.service.port }}
+
 {{- end }}
