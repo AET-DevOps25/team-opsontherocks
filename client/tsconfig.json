@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "module": "esnext",
     "types": ["jest", "node"],
     "baseUrl": "./src",
     "paths": {

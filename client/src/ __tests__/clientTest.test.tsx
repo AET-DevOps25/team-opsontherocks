@@ -3,7 +3,6 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 
-//  mock ResultsPage component
 const ResultsPage = () => <h1>Progress Report</h1>;
 
 describe("Mock client test", () => {

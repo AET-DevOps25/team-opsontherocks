@@ -4,6 +4,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flasgger import Swagger
+
 #from example import generate_feedback_from_db, chat_response
 from llm import generate_feedback_from_db, chat_response
 app = Flask(__name__)
@@ -122,6 +123,13 @@ def health():
 def test_connection():
     return {"status": "ok", "message": "GenAI service is running!"}, 200
 
+
+def create_test_app():
+    app = Flask(__name__)
+
+@app.route("/test")
+def test_endpoint():
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":
