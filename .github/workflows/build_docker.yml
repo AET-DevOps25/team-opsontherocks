@@ -4,6 +4,86 @@ on:
   push:
 
 jobs:
+  genai-test:
+    name: GenAI Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: genai
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run GenAI Tests
+        run: pytest
+
+  wheeloflife-test:
+    name: Wheel of Life Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server/wheeloflife
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Run Wheel of Life Tests
+        run: ./gradlew test  # or mvn test
+
+  authentication-test:
+    name: Authentication Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server/authentication
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Run Authentication Tests
+        run: ./gradlew test  # or mvn test
+
+  client-test:
+    name: Client Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci  # or npm install
+
+      - name: Run Client Tests
+        run: npm test
+
   build:
     #depends-on: test with job called test
     runs-on: ubuntu-latest
