@@ -143,6 +143,11 @@ services:
       - "traefik.http.services.client.loadbalancer.server.port=5173"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=letsencrypt"
+    environment:
+      - VITE_SERVER_URL=${VITE_SERVER_URL}
+      - VITE_AUTH_URL=${VITE_AUTH_URL}
+      - VITE_GENAI_URL=${VITE_GENAI_URL}
+
     networks:
       - app-network
 

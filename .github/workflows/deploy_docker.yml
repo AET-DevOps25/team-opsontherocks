@@ -31,7 +31,7 @@ jobs:
           source: compose-aws.yml
           target: /home/${{ vars.AWS_EC2_USER }}
 
-      - name: Generate .env.prod on EC2
+      - name: Generate .env file on EC2
         uses: appleboy/ssh-action@v1.0.3
         env:
           EC2_IP: ${{ vars.EC2_PUBLIC_IP }}
@@ -46,10 +46,13 @@ jobs:
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
           script: |
-            cat > .env.prod <<EOF
+            cat > .env <<EOF
             CLIENT_HOST=client.${EC2_IP}.nip.io
             SERVER_HOST=api.${EC2_IP}.nip.io
             PUBLIC_API_URL=https://api.${EC2_IP}.nip.io/api
+            VITE_SERVER_URL=https://api.${EC2_IP}.nip.io
+            VITE_AUTH_URL=https://auth.${EC2_IP}.nip.io
+            VITE_GENAI_URL=https://genai.${EC2_IP}.nip.io
             POSTGRES_USER=${POSTGRES_USER}
             POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             GRAFANA_HOST=grafana.${EC2_IP}.nip.io
@@ -57,6 +60,7 @@ jobs:
             GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
             JWT_SECRET=${JWT_SECRET}
             EOF
+      
 
       - name: Deploy containers with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
