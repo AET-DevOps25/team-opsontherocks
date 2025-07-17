@@ -41,8 +41,8 @@ public class AuthController {
                 .path("/")
                 .maxAge(maxAgeSeconds)
                 .secure(true)
-                .sameSite("None");
-        ;
+                .sameSite("None")
+                .domain(".54.166.45.176.nip.io");
 
         if (isProd()) {
             cb.secure(true)

@@ -97,9 +97,8 @@
               GITHUB_REPOSITORY=${{ github.repository }}
               GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
               TAG=latest
+              SPRING_PROFILES_ACTIVE=prod
               EOF
-        
-        
         
 
         - name: Deploy containers with Docker Compose
