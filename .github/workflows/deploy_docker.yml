@@ -48,10 +48,10 @@ jobs:
           script: |
             cat > .env <<EOF
             CLIENT_HOST=client.${EC2_IP}.nip.io
-            SERVER_HOST=api.${EC2_IP}.nip.io
-            PUBLIC_API_URL=https://api.${EC2_IP}.nip.io/api
-            VITE_SERVER_URL=https://api.${EC2_IP}.nip.io
-            VITE_AUTH_URL=https://auth.${EC2_IP}.nip.io
+            SERVER_HOST=wheel-of-life.${EC2_IP}.nip.io
+            PUBLIC_API_URL=https://wheel-of-life.${EC2_IP}.nip.io/api
+            VITE_SERVER_URL=https://wheel-of-life.${EC2_IP}.nip.io
+            VITE_AUTH_URL=https://authentication.${EC2_IP}.nip.io
             VITE_GENAI_URL=https://genai.${EC2_IP}.nip.io
             POSTGRES_USER=${POSTGRES_USER}
             POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -59,6 +59,9 @@ jobs:
             GRAFANA_USER=${GRAFANA_USER}
             GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
             JWT_SECRET=${JWT_SECRET}
+            AUTH_HOST=authentication.${EC2_IP}.nip.io
+            API_HOST=wheel-of-life.${EC2_IP}.nip.io
+            GENAI_HOST=genai.${EC2_IP}.nip.io
             EOF
       
 

@@ -50,7 +50,7 @@ services:
       - grafana-data:/var/lib/grafana
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_HOST}`)"
+      - "traefik.http.routers.grafana.rule=Host(${GRAFANA_HOST})"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
@@ -72,7 +72,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=Host(`${AUTH_HOST}`)"
+      - "traefik.http.routers.auth.rule=Host(${AUTH_HOST})"
       - "traefik.http.services.auth.loadbalancer.server.port=8081"
       - "traefik.http.routers.auth.entrypoints=websecure"
       - "traefik.http.routers.auth.tls.certresolver=letsencrypt"
@@ -100,7 +100,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`${API_HOST}`)"
+      - "traefik.http.routers.api.rule=Host(${API_HOST})"
       - "traefik.http.services.api.loadbalancer.server.port=8080"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
@@ -123,7 +123,7 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.genai.rule=Host(`${GENAI_HOST}`)"
+      - "traefik.http.routers.genai.rule=Host(${GENAI_HOST})"
       - "traefik.http.services.genai.loadbalancer.server.port=5001"
       - "traefik.http.routers.genai.entrypoints=websecure"
       - "traefik.http.routers.genai.tls.certresolver=letsencrypt"
@@ -139,7 +139,7 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`${CLIENT_HOST}`)"
+      - "traefik.http.routers.client.rule=Host(${CLIENT_HOST})"
       - "traefik.http.services.client.loadbalancer.server.port=5173"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=letsencrypt"

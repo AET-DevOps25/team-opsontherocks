@@ -58,7 +58,7 @@ jobs:
           echo "VITE_AUTH_URL   = https://auth.${EC2_PUBLIC_IP}.nip.io"
           echo "VITE_GENAI_URL  = https://genai.${EC2_PUBLIC_IP}.nip.io"
 
-      - name: Build and push Docker image (frontend/genai)
+      - name: Build and push Docker image (client/genai)
         if: ${{ matrix.service == 'client' || matrix.service == 'genai' }}
         uses: docker/build-push-action@v5
         with:
@@ -69,8 +69,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_SERVER_URL=https://api.${{ env.EC2_PUBLIC_IP }}.nip.io
-            VITE_AUTH_URL=https://auth.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_SERVER_URL=https://wheel-of-life.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL=https://authentication.${{ env.EC2_PUBLIC_IP }}.nip.io
             VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
         
 
