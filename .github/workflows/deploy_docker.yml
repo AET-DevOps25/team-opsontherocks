@@ -40,31 +40,64 @@
             GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
             GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           with:
             host: ${{ vars.EC2_PUBLIC_IP }}
             username: ${{ vars.AWS_EC2_USER }}
             key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-            envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET
+            envs: EC2_IP,POSTGRES_USER,POSTGRES_PASSWORD,GRAFANA_USER,GRAFANA_PASSWORD,JWT_SECRET,OPENAI_API_KEY
             script: |
               cat > .env <<EOF
+              #######################################
+              # Public hosts (Traefik routes)
+              #######################################
               CLIENT_HOST=client.${EC2_IP}.nip.io
               WHEEL_OF_LIFE_HOST=wheel-of-life.${EC2_IP}.nip.io
               AUTH_HOST=authentication.${EC2_IP}.nip.io
               GENAI_HOST=genai.${EC2_IP}.nip.io
-              
-              VITE_SERVER_URL=https://${WHEEL_OF_LIFE_HOST}
-              VITE_AUTH_URL=https://${AUTH_HOST}
-              VITE_GENAI_URL=https://${GENAI_HOST}
-              
+              GRAFANA_HOST=grafana.${EC2_IP}.nip.io
+
+              #######################################
+              # Frontend runtime environment
+              #######################################
+              VITE_SERVER_URL=https://wheel-of-life.${EC2_IP}.nip.io
+              VITE_AUTH_URL=https://authentication.${EC2_IP}.nip.io
+              VITE_GENAI_URL=https://genai.${EC2_IP}.nip.io
+
+              #######################################
+              # Postgres
+              #######################################
               POSTGRES_USER=${POSTGRES_USER}
               POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-              
-              GRAFANA_HOST=grafana.${EC2_IP}.nip.io
+              DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/wheelOfLifeDB
+
+              #######################################
+              # Grafana
+              #######################################
               GRAFANA_USER=${GRAFANA_USER}
               GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
-              
+
+              #######################################
+              # Secrets
+              #######################################
               JWT_SECRET=${JWT_SECRET}
+
+              #######################################
+              # OpenAI (for genai)
+              #######################################
+              OPENAI_API_KEY=${OPENAI_API_KEY}
+              OPENAI_API_BASE=https://api.openai.com/v1
+              OPENAI_MODEL=gpt-4o
+
+              #######################################
+              # GitHub metadata
+              #######################################
+              GITHUB_REPOSITORY=${{ github.repository }}
+              GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+              TAG=latest
               EOF
+        
+        
         
 
         - name: Deploy containers with Docker Compose
