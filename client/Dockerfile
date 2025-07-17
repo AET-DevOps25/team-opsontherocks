@@ -14,6 +14,11 @@ ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 ENV VITE_GENAI_URL=${VITE_GENAI_URL}
 ENV VITE_AUTH_URL=${VITE_AUTH_URL}
 
+# Inject vars into .env for Vite to pick up
+RUN echo "VITE_SERVER_URL=$VITE_SERVER_URL" >> .env && \
+    echo "VITE_GENAI_URL=$VITE_GENAI_URL" >> .env && \
+    echo "VITE_AUTH_URL=$VITE_AUTH_URL" >> .env
+
 # Copy rest of the sources and build
 COPY . ./
 RUN npm run build
