@@ -2,14 +2,17 @@
 'use client';
 
 import {useEffect, useState} from 'react';
+import {WHEEL_URL} from "@/config/api";
+import {GENAI_URL} from "@/config/api";
+
 
 export function useTestEndpoints() {
     const [userData, setUserData] = useState<string | null>(null);
     const [healthCheckData, setHealthCheckData] = useState<string | null>(null);
     const [genAiHelloData, setGenAiHelloData] = useState<string | null>(null);
 
-    const serverBase = import.meta.env.VITE_SERVER_URL;
-    const genAIBase = import.meta.env.VITE_GENAI_URL;
+    const serverBase = WHEEL_URL;
+    const genAIBase = GENAI_URL;
 
     useEffect(() => {
         if (!serverBase) {

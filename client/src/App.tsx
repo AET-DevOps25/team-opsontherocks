@@ -7,8 +7,9 @@ import ReportPage from "@/pages/ReportPage";
 import { Report } from "@/hooks/useReports";
 import { CategoryValue } from "@/types/categories";
 import ResultsPage from "@/pages/ResultsPage";
+import {WHEEL_URL} from "@/config/api";
 
-const serverBase = import.meta.env.VITE_SERVER_URL;
+const serverBase = WHEEL_URL;
 
 // Helper function to convert report scores to CategoryValue format
 const convertReportToCategoryValues = (report: Report): CategoryValue[] => {

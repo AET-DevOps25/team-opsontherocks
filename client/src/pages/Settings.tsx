@@ -6,6 +6,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Badge} from '@/components/ui/badge';
 import type {MainCategory} from '@/types/categories';
+import {WHEEL_URL} from "@/config/api";
 import {
     Dialog,
     DialogClose,
@@ -50,7 +51,7 @@ export default function Settings({onBack}: SettingsProps) {
     const [error, setError] = useState<string | null>(null);
 
     /* api helper */
-    const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
+    const SERVER = WHEEL_URL;
     const base = SERVER ? `${SERVER}/users/me/categories` : undefined;
     const api = useCallback(<T, >(path: string, opts: RequestInit = {}): Promise<T> => {
         if (!base) return Promise.reject(new Error('VITE_SERVER_URL not set')) as Promise<T>;
