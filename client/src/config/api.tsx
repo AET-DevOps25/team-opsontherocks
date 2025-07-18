@@ -1,11 +1,12 @@
-const hostname = window.location.hostname;
-
-const isNipIO = hostname.includes('nip.io');
+// const hostname = window.location.hostname;
+// const isNipIO = hostname.includes('nip.io');
 
 // Dynamic base URL based on current domain
-export const BASE_URL = isNipIO
-    ? `https://${hostname}` // e.g. https://wheel-of-life.54.166.45.176.nip.io
-    : 'https://opsontherocks.student.k8s.aet.cit.tum.de';
+// export const BASE_URL = isNipIO
+//     ? `https://${hostname}` // e.g. https://wheel-of-life.54.166.45.176.nip.io
+//     : 'https://opsontherocks.student.k8s.aet.cit.tum.de';
+
+export const BASE_URL = 'https://opsontherocks.student.k8s.aet.cit.tum.de';
 
 //  Dynamic URLs (used by default)
 export const API_URL = BASE_URL;

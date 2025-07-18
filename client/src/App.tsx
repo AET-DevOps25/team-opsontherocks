@@ -28,6 +28,7 @@ function AppRoutes() {
 
     const checkAuthStatus = async (): Promise<boolean> => {
         try {
+            console.log(`URL:${WHEEL_URL}`);
             console.log('[App] Checking /users/me with credentials...');
             const res = await fetch(`${serverBase}/users/me`, {
                 method: 'GET',
