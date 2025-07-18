@@ -1,10 +1,7 @@
   name: Deploy current Docker images
 
   on:
-    push:
-      branches:
-        - main
-        - deployment
+    workflow_dispatch: {}
 
   permissions:
     contents: read
