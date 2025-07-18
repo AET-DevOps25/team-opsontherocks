@@ -1,3 +1,6 @@
+import os
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # or some dummy/test DB
+
 import pytest
 from app import app
 
