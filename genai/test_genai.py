@@ -1,6 +1,6 @@
 import os
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # or some dummy/test DB
-
+os.environ["OPENAI_API_KEY"] = "fake-key"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 import pytest
 from app import app
 
