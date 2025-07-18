@@ -52,9 +52,13 @@ public class SecurityConfig implements WebMvcConfigurer {
     private List<String> getAllowedOrigins() {
         return List.of(
                 "http://localhost:5173",
-                "https://opsontherocks.student.k8s.aet.cit.tum.de"
+                "https://opsontherocks.student.k8s.aet.cit.tum.de",
+                "https://wheel-of-life.54.166.45.176.nip.io",
+                "https://client.54.166.45.176.nip.io",
+                "https://authentication.54.166.45.176.nip.io"
         );
     }
+
 
 
     /**

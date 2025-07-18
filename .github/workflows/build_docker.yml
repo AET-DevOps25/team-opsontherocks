@@ -116,3 +116,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_SERVER_URL=https://wheel-of-life.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL=https://authentication.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_GENAI_URL=https://genai.${{ env.EC2_PUBLIC_IP }}.nip.io
+            VITE_AUTH_URL_RANCHER=https://opsontherocks.student.k8s.aet.cit.tum.de/auth
+            VITE_SERVER_URL_RANCHER=https://opsontherocks.student.k8s.aet.cit.tum.de/wheel
+            VITE_GENAI_URL_RANCHER=https://opsontherocks.student.k8s.aet.cit.tum.de/genai

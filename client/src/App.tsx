@@ -45,6 +45,8 @@ function AppRoutes() {
     useEffect(() => {
         let mounted = true;
         (async () => {
+            console.log('logging env variables')
+            console.log(`${WHEEL_URL}`)
             console.log('[App] Running initial auth check');
             const ok = await checkAuthStatus();
             if (mounted) setIsAuthenticated(ok);
