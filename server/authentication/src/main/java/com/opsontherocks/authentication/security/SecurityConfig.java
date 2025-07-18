@@ -22,6 +22,9 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+/**
+ * Main Spring Security configuration: CORS, filters, and route protection.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
@@ -32,6 +35,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         this.jwtFilter = jwtFilter;
     }
 
+    /**
+     * Sets up CORS policy using allowed origin from environment.
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry
@@ -47,6 +53,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         return System.getenv().getOrDefault("CLIENT_ORIGIN", "http://localhost:5173");
     }
 
+    /**
+     * Bean for global CORS config, used by Spring Security.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -61,6 +70,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         return source;
     }
 
+    /**
+     * Core Spring Security filter chain setup with JWT and CORS.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -76,11 +88,17 @@ public class SecurityConfig implements WebMvcConfigurer {
         return http.build();
     }
 
+    /**
+     * Authentication manager used for login.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * Password encoder bean using BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

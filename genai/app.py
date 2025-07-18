@@ -1,3 +1,16 @@
+"""
+GenAI Service
+
+This module includes the core Flask application, OpenAI integration logic, database access utilities, and ORM models
+for a microservice that delivers AI-generated feedback based on user reflections. The service uses OpenAI's chat
+models to analyze historical reports and provide coaching-like responses.
+
+Main components:
+- app.py: REST API entry points and authentication
+- llm.py: OpenAI interaction helpers
+- services/: DB access and ORM models
+"""
+
 import functools
 import jwt
 import os
@@ -15,6 +28,7 @@ JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = "HS512"  # Same as Spring
 
 def requires_auth(fn):
+    """Decorator for protecting routes using JWT authentication."""
     @functools.wraps(fn)
     def wrapper(*args, **kw):
         token = None

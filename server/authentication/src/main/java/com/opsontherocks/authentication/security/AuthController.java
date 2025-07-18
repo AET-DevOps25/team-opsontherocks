@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-
+/**
+ * Handles user registration, login, logout, and authentication health check.
+ */
 @Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 @RestController
 @RequiredArgsConstructor
@@ -65,12 +67,18 @@ public class AuthController {
         }
     }
 
+    /**
+     * Health check endpoint to confirm the service is running.
+     */
     @Operation(summary = "Health check for the authentication service")
     @GetMapping("/healthCheck")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Auth service running");
     }
 
+    /**
+     * Registers a new user and sets a secure JWT cookie.
+     */
     @Operation(summary = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req, HttpServletRequest request) {
@@ -91,6 +99,9 @@ public class AuthController {
                 .body("Registration succeeded");
     }
 
+    /**
+     * Authenticates user and issues JWT token in a cookie.
+     */
     @Operation(summary = "Login a user")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req,  HttpServletRequest request) {
@@ -110,6 +121,9 @@ public class AuthController {
         }
     }
 
+    /**
+     * Clears the authentication cookie to log the user out.
+     */
     @Operation(summary = "Logout the current user")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {

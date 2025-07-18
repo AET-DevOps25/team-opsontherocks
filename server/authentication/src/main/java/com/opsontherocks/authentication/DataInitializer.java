@@ -9,6 +9,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+/**
+ * Seeds the database with demo users at startup (if none exist).
+ */
 @Configuration
 public class DataInitializer {
 

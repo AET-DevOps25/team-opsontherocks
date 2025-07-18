@@ -20,6 +20,7 @@ _client = _create_client()
 
 
 def _safe_completion(*, model: str, messages: List[Dict[str, str]]) -> str:
+    """Wrapper around OpenAI chat call that handles exceptions."""
     try:
         resp = _client.chat.completions.create(model=model, messages=messages)
         return resp.choices[0].message.content
@@ -29,9 +30,9 @@ def _safe_completion(*, model: str, messages: List[Dict[str, str]]) -> str:
         raise RuntimeError(f"OpenAI call failed: {e}") from e
 
 
-# ─── Public API ───────────────────────────────────────────────────────────────
 
 def generate_feedback_from_db(user_email: str) -> str:
+    """Fetch report from DB and generate AI feedback."""
     report = fetch_latest_report(user_email)
     if not report:
         return "No report found for this user."
