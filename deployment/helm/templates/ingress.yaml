@@ -35,7 +35,7 @@ spec:
                 port:
                   number: {{ .Values.serverAuth.service.port }}
 
-          - path: /
+          - path: /wheel
             pathType: Prefix
             backend:
               service:
