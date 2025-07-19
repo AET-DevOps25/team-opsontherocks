@@ -10,7 +10,7 @@ The application’s main functionality is to enable users to:
 
 AI will analyze both current and past data to provide actionable, mostly positive feedback and tailored suggestions.
 
-![Wheel of Life](/images/WheelOfLife.png)
+![Wheel of Life](./docs/WheelOfLife.png)
 
 ---
 
@@ -141,15 +141,15 @@ Config files are in `./prometheus/` and `./grafana/`.
 
 # Diagrams
 
-![Use Case Diagram](/images/UseCaseDiagram.png)
+![Use Case Diagram](./docs/UseCaseDiagram.png)
 Use Case Diagram
 
 
-![Component Diagram](/images/UseCaseDiagram.png)
+![Component Diagram](./docs/UseCaseDiagram.png)
 Component Diagram
 
 
-![Analysis Object Model](/images/AnalysisObjectModel.png)
+![Analysis Object Model](./docs/AnalysisObjectModel.png)
 Analysis Object Model
 
 ## API Documentation (OpenAPI/Swagger)

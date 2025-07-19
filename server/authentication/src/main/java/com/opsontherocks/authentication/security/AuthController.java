@@ -46,18 +46,18 @@ public class AuthController {
                 .path("/")
                 .maxAge(maxAgeSeconds);
 
-        if (isProd()) {
-            cb.secure(true).sameSite("None");
-        } else {
+        if (origin != null && origin.contains("localhost")) {
             cb.secure(false).sameSite("Lax");
-        }
-
-        if (domain != null && !domain.contains("localhost")) {
-            cb.domain(domain); // e.g. ".opsontherocks.student.k8s.aet.cit.tum.de"
+        } else {
+            cb.secure(true).sameSite("None");
+            if (domain != null && !domain.contains("localhost")) {
+                cb.domain(domain); // required for cross-origin cookie
+            }
         }
 
         return cb.build();
     }
+
 
 
     private String extractDomainFromOrigin(String origin) {
