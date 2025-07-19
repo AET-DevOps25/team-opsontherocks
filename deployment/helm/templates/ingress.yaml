@@ -4,11 +4,10 @@ kind: Ingress
 metadata:
   name: opsontherocks-ingress
   namespace: {{ .Release.Namespace }}
-  {{- $annotations := .Values.ingress.annotations | default dict }}
-  {{- if $annotations }}
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    {{- $annotations := .Values.ingress.annotations | default dict }}
     {{- toYaml $annotations | nindent 4 }}
-  {{- end }}
 spec:
   {{- if .Values.ingress.tls }}
   tls:
@@ -20,7 +19,7 @@ spec:
     - host: "{{ .Values.ingress.host }}"
       http:
         paths:
-          - path: /
+          - path: /(/|$)(.*)
             pathType: Prefix
             backend:
               service:
@@ -28,7 +27,7 @@ spec:
                 port:
                   number: {{ .Values.client.service.port }}
 
-          - path: /auth
+          - path: /auth(/|$)(.*)
             pathType: Prefix
             backend:
               service:
@@ -36,7 +35,7 @@ spec:
                 port:
                   number: {{ .Values.serverAuth.service.port }}
 
-          - path: /wheel
+          - path: /wheel(/|$)(.*)
             pathType: Prefix
             backend:
               service:
@@ -44,7 +43,7 @@ spec:
                 port:
                   number: {{ .Values.serverWheel.service.port }}
 
-          - path: /genai
+          - path: /genai(/|$)(.*)
             pathType: Prefix
             backend:
               service:

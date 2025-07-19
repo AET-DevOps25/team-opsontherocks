@@ -64,8 +64,6 @@ serverAuth:
       value: update
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
-    - name: CLIENT_ORIGIN
-      value: https://opsontherocks.student.k8s.aet.cit.tum.de
     - name: CORS_ALLOWED_ORIGINS
       value: https://opsontherocks.student.k8s.aet.cit.tum.de/wheel
 
@@ -115,6 +113,11 @@ genai:
     port: 5001
     targetPort: 5001
   replicaCount: 1
+  ingress:
+    enabled: true
+    path: /genai
+    pathType: Prefix
+
   env:
     - name: JWT_SECRET
       valueFrom:
