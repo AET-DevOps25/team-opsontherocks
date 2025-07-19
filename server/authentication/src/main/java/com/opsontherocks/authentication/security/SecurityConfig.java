@@ -27,7 +27,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
@@ -35,24 +35,15 @@ public class SecurityConfig implements WebMvcConfigurer {
         this.jwtFilter = jwtFilter;
     }
 
-    /**
-     * Sets up CORS policy using allowed origin from environment.
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry
-                .addMapping("/**")
-                .allowedOrigins(getAllowedOrigins().toArray(new String[0]))
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
-                .exposedHeaders("Authorization")
-                .allowCredentials(true);
-    }
 
     private List<String> getAllowedOrigins() {
         return List.of(
                 "http://localhost:5173",
                 "https://opsontherocks.student.k8s.aet.cit.tum.de",
+                "https://opsontherocks.student.k8s.aet.cit.tum.de/auth",
+                "https://opsontherocks.student.k8s.aet.cit.tum.de/wheel",
+                "https://opsontherocks.student.k8s.aet.cit.tum.de/client",
+                "https://opsontherocks.student.k8s.aet.cit.tum.de/genai",
                 "https://wheel-of-life.54.166.45.176.nip.io",
                 "https://client.54.166.45.176.nip.io",
                 "https://authentication.54.166.45.176.nip.io"
