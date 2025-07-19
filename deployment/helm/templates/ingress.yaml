@@ -19,7 +19,7 @@ spec:
     - host: "{{ .Values.ingress.host }}"
       http:
         paths:
-          - path: /(/|$)(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -27,7 +27,7 @@ spec:
                 port:
                   number: {{ .Values.client.service.port }}
 
-          - path: /auth(/|$)(.*)
+          - path: /auth
             pathType: Prefix
             backend:
               service:
@@ -35,7 +35,7 @@ spec:
                 port:
                   number: {{ .Values.serverAuth.service.port }}
 
-          - path: /wheel(/|$)(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -43,7 +43,7 @@ spec:
                 port:
                   number: {{ .Values.serverWheel.service.port }}
 
-          - path: /genai(/|$)(.*)
+          - path: /genai
             pathType: Prefix
             backend:
               service:
