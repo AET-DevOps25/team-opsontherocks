@@ -145,7 +145,7 @@ Config files are in `./prometheus/` and `./grafana/`.
 Use Case Diagram
 
 
-![Component Diagram](./docs/UseCaseDiagram.png)
+![Component Diagram](./docs/ComponentDiagram.png)
 Component Diagram
 
 
