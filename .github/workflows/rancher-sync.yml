@@ -14,8 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set image tag
-        run: echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+      - name: Set image tag for Rancher
+        run: echo "TAG=latest-rancher" >> $GITHUB_ENV
 
       - name: Set up kubeconfig
         run: |
@@ -39,5 +39,8 @@ jobs:
         run: |
           helm upgrade --install wheeloflife ./deployment/helm \
             --namespace opsontherocks \
-            --set image.tag=${{ github.sha }} \
+            --set client.image.tag=${{ env.TAG }} \
+            --set serverAuth.image.tag=${{ env.TAG }} \
+            --set serverWheel.image.tag=${{ env.TAG }} \
+            --set genai.image.tag=${{ env.TAG }} \
             --wait
