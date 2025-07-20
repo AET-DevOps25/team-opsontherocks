@@ -56,6 +56,8 @@ serverAuth:
       value: "true"
     - name: CORS_ALLOWED_ORIGINS
       value: https://opsontherocks.student.k8s.aet.cit.tum.de
+    - name: IS_RANCHER
+      value: "true"
 
 serverWheel:
   image:

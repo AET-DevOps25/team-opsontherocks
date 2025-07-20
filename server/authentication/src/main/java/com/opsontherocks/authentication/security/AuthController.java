@@ -36,21 +36,29 @@ public class AuthController {
         return Arrays.asList(env.getActiveProfiles()).contains("prod");
     }
 
+    private boolean isRancher() {
+        String isRancher = env.getProperty("IS_RANCHER");
+        return isRancher != null && isRancher.equalsIgnoreCase("true");
+    }
+
     private ResponseCookie buildCookie(String token, long maxAgeSeconds) {
         ResponseCookie.ResponseCookieBuilder cb = ResponseCookie.from("JWT_TOKEN", token)
                 .httpOnly(true)
                 .path("/")
-                .maxAge(maxAgeSeconds)
-                .secure(true)
-                .sameSite("None")
-                .domain(".54.166.45.176.nip.io");
+                .maxAge(maxAgeSeconds);
 
-        if (isProd()) {
+        if (isRancher()) {
             cb.secure(true)
-                    .sameSite("None");
+              .sameSite("None")
+              .domain(".opsontherocks.student.k8s.aet.cit.tum.de");
+        } else if (isProd()) {
+            cb.secure(true)
+              .sameSite("None")
+              .domain(".54.166.45.176.nip.io");
         } else {
             cb.secure(false)
-                    .sameSite("Lax");
+              .sameSite("Lax");
+            // No domain for local/dev
         }
         return cb.build();
     }
