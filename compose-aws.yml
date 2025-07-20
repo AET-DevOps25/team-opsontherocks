@@ -58,7 +58,7 @@ services:
       - app-network
 
   authentication:
-    image: ghcr.io/${GITHUB_REPOSITORY}/authentication:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/authentication:latest-ec2
     depends_on:
       - db
     environment:
@@ -82,7 +82,7 @@ services:
 
 
   wheel-of-life:
-    image: ghcr.io/${GITHUB_REPOSITORY}/wheel-of-life:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/wheel-of-life:latest-ec2
     depends_on:
       - db
       - authentication
@@ -107,7 +107,7 @@ services:
 
 
   genai:
-    image: ghcr.io/${GITHUB_REPOSITORY}/genai:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/genai:latest-ec2
     environment:
       CLIENT_ORIGIN: https://${CLIENT_HOST}
       JWT_SECRET: ${JWT_SECRET}
@@ -125,7 +125,7 @@ services:
       - app-network
 
   client:
-    image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/client:latest-ec2
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`${CLIENT_HOST}`)"

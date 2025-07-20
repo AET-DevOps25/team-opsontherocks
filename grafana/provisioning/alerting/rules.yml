@@ -1,0 +1,45 @@
+# rules.yml
+apiVersion: 1
+
+groups:
+  - name: wheel-of-life-alerts
+    folder: Wheel of Life Alerts
+    interval: 30s
+    rules:
+      - uid: wheel_of_life_app_down_alert
+        title: App Down Alert
+        condition: C
+        for: 1m
+        isPaused: false
+        annotations:
+          summary: "The Wheel of Life app appears to be down."
+          description: "The 'up' metric for job 'wheel-of-life' has been 0 for more than 1 minute. Current value is {{$values.B}}."
+        labels:
+          severity: critical
+
+        data:
+          # Query A
+          - refId: A
+            # THIS IS THE FIX: It points to the UID from your prometheus.yml file.
+            datasourceUid: "prometheus_main"
+            model:
+              refId: A
+              expr: 'up{job="wheel-of-life"}'
+            relativeTimeRange:
+              from: 300
+              to: 0
+
+          # Expression B
+          - refId: B
+            datasourceUid: "__expr__"
+            model:
+              type: "reduce"
+              expression: "A"
+              reducer: "last"
+
+          # Expression C
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: "math"
+              expression: "$B < 1"

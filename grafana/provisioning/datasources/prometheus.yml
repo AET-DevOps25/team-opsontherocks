@@ -1,8 +1,12 @@
+# prometheus.yml
+apiVersion: 1
+
 datasources:
   - name: "Prometheus"
-    uid: "prometheus"
+    # This is the permanent, predictable ID for your data source.
+    uid: "prometheus_main"
     type: "prometheus"
     url: http://prometheus:9090
     access: "proxy"
     isDefault: true
-    editable: true 
+    editable: true
