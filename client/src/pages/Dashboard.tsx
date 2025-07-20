@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {getISOWeek} from "date-fns";
 import {useReports} from "@/hooks/useReports";
-import ApiDebugCard from "@/components/ApiDebugCard";
 import HeaderSection from "@/components/HeaderSection";
 import WeeklyCheckInCard from "@/components/WeeklyCheckInCard";
 import CategoryCharts from "@/components/CategoryCharts";
@@ -74,8 +73,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                     error={reportsError}
                     onViewReport={onViewReport}
                 />
-
-                <ApiDebugCard/>
             </div>
         </div>
     );
