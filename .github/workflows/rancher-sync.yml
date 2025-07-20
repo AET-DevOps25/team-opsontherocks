@@ -35,6 +35,18 @@ jobs:
       - name: Ensure namespace exists
         run: kubectl get ns opsontherocks || kubectl create ns opsontherocks
 
+      - name: Fix stuck Helm release (if needed)
+        run: |
+          echo "Checking for existing Helm release 'wheeloflife'..."
+          helm status wheeloflife -n opsontherocks || echo "Release does not exist yet."
+
+          echo "Checking for Helm secrets with locks..."
+          locked_secret=$(kubectl get secret -n opsontherocks -o name | grep 'sh.helm.release.v1.wheeloflife' | tail -n 1)
+          if [ -n "$locked_secret" ]; then
+            echo "Deleting potentially locked Helm secret: $locked_secret"
+            kubectl delete $locked_secret -n opsontherocks || true
+          fi
+
       - name: Deploy using Helm
         run: |
           helm upgrade --install wheeloflife ./deployment/helm \
