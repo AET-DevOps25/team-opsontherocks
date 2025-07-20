@@ -1,3 +1,4 @@
+
 # Problem Statement
 
 ## 1. Main Functionality
@@ -81,6 +82,7 @@ Individuals interested in personal development, emotional wellness, and self-ref
     - Over time, reviews trend visualizations to see improvements.
 
 ---
+
 ## Initial Product Backlog
 
 - **User Authentication**
@@ -101,67 +103,223 @@ Individuals interested in personal development, emotional wellness, and self-ref
 - **Progress Visualization**
    - As a user, I want to view past weekly reports in visual charts, so I can track my emotional and personal progress over time.
 
+---
+
 # Tech Stack
 
-| Layer         | Technology               |
-|---------------|---------------------------|
-| Frontend      | Vite + React              |
-| Backend       | Spring Boot (Java)        |
-| AI Service    | Node.js + OpenAI API      |
-| Auth          | Spring Security + JWT     |
-| Database      | PostgreSQL                |
-| Containerization | Docker & Docker Compose |
-| Monitoring    | Prometheus + Grafana      |
-| Reverse Proxy | Traefik (for AWS deploy)  |
+| Layer             | Technology               |
+|------------------|---------------------------|
+| Frontend          | Vite + React              |
+| Backend           | Spring Boot (Java)        |
+| AI Service        | Node.js + OpenAI API      |
+| Auth              | Spring Security + JWT     |
+| Database          | PostgreSQL                |
+| Containerization  | Docker & Docker Compose   |
+| Monitoring        | Prometheus + Grafana      |
+| Reverse Proxy     | Traefik (for AWS deploy)  |
 
-
+---
 
 ## Authentication
 
 - OAuth-based login (configurable)
 - JWT for secure inter-service communication
 
+---
 
-## Monitoring & Metrics
+## Monitoring & Observability
 
-Prometheus collects metrics from backend services, and Grafana displays them via real-time dashboards.
+This project uses Prometheus for metrics collection and Grafana for visualization and alerting.
 
-### Access
+Prometheus is an open-source monitoring and alerting toolkit designed for reliability and scalability. In this project, Prometheus is used to collect metrics from all backend services (Authentication, Wheel of Life, GenAI) as well as from the infrastructure itself (CPU, memory, etc.).
 
-- **Grafana**: [http://localhost:3000](http://localhost:3000)
-- **Prometheus**: [http://localhost:9090](http://localhost:9090)
+**Prometheus**  
+- Metrics collected include:
+  - Service uptime
+  - Request/response rates
+  - Error counts
+  - Number of reports created
 
-(Default Grafana login: `admin` / `admin`)
+Prometheus scrapes these metrics at regular intervals and stores them in a time-series database, making them available for querying and visualization.
 
-### Metrics Example
+**Grafana**  
+Grafana visualizes these metrics through interactive dashboards. Dashboards include:
+- System health overview
+- Service-specific metrics (e.g., report creation trends)
+- CPU usage
 
-- `wheel-of-life`: total reports created, uptime, CPU/memory usage
+**Alerting:**
+- Grafana supports alerting for critical events (e.g., service downtime, high error rates). Example alert rules and dashboards are provisioned automatically from the files in `grafana/provisioning/dashboards/` and `grafana/provisioning/datasources/`.
 
-Config files are in `./prometheus/` and `./grafana/`.
+### Accessing Monitoring Tools
+
+- **Local deployment:**
+  - Grafana: [http://localhost:3000](http://localhost:3000) (default: admin/admin)
+  - Prometheus: [http://localhost:9090](http://localhost:9090)
+
+- **Kubernetes/AWS/Rancher deployment:**
+  - Replace `localhost` with the cluster’s external IP or DNS name  
+  - Example:
+    - Grafana: `http://<your-aws-elb-dns>/grafana`
+    - Prometheus: `http://<your-aws-elb-dns>/prometheus`
+
+---
+
+# CI/CD Workflows
+
+To ensure reliability, test coverage, and streamlined deployment, this project uses **GitHub Actions** for continuous integration and delivery. It automates testing, Docker builds, AWS EC2 deployment, and Kubernetes Helm deployments to Rancher.
+
+---
+
+## Automated Testing
+
+Tests are automatically run on every `push` for the following services:
+
+| Service           | Technology Stack      | Test Framework      | Path                         |
+|------------------|-----------------------|---------------------|------------------------------|
+| GenAI             | Python 3.11           | pytest              | `genai/test_genai.py`        |
+| Wheel of Life     | Spring Boot (Java 17) | Gradle (JUnit)      | `server/wheel-of-life/`      |
+| Client (Frontend) | Node.js 20            | npm test            | `client/`                    |
+
+---
+
+## Docker Image Build & Push
+
+All services are containerized using Docker and published to GitHub Container Registry (GHCR) on every commit. The workflow supports parallel builds using a matrix strategy:
+
+| Service         | Context Path             |
+|----------------|---------------------------|
+| authentication | `server/authentication`   |
+| wheel-of-life  | `server/wheel-of-life`    |
+| client         | `client`                  |
+| genai          | `genai`                   |
+
+### Build Metadata
+
+The following tags are generated using the `docker/metadata-action`:
+- `latest` (for default branch)
+- Branch name (e.g., `main`, `feature/...`)
+- Pull request ref
+
+### Frontend Build Arguments
+
+For `client` and `genai`, `build-args` are passed to inject runtime URLs:
+
+```
+
+VITE\_SERVER\_URL
+VITE\_AUTH\_URL
+VITE\_GENAI\_URL
+VITE\_SERVER\_URL\_RANCHER
+VITE\_AUTH\_URL\_RANCHER
+VITE\_GENAI\_URL\_RANCHER
+
+````
+
+---
+
+## AWS EC2 Deployment
+
+Manual deployment to EC2 is triggered using `workflow_dispatch`.
+
+### Process Overview:
+1. Copies `compose-aws.yml` to EC2 via SCP
+2. Generates `.env` file on EC2 using GitHub secrets/variables
+3. Runs Docker Compose to deploy all services
+
+### Deployment Command:
+```bash
+docker compose -f compose-aws.yml up --pull always -d --remove-orphans
+````
+
+All services are served over HTTPS using Traefik and `nip.io` subdomains like:
+
+* `client.<IP>.nip.io`
+* `authentication.<IP>.nip.io`
+* `wheel-of-life.<IP>.nip.io`
+* `genai.<IP>.nip.io`
+
+---
+
+## Rancher Helm Deployment
+
+Automatic deployment to the Kubernetes cluster (via Rancher) happens on push to the `main` or `deployment` branches.
+
+### Helm Deployment Steps:
+
+1. Load kubeconfig from GitHub Secrets
+2. Install Helm and kubectl
+3. Ensure the `opsontherocks` namespace exists
+4. Deploy with Helm using commit SHA as image tag
+
+### Command:
+
+```bash
+helm upgrade --install wheeloflife ./deployment/helm \
+  --namespace opsontherocks \
+  --set image.tag=<commit-sha> \
+  --wait
+```
+
+---
+
+## Secrets & Environment Configuration
+
+The workflows rely on the following GitHub Secrets and Variables:
+
+| Name                  | Type     | Description                        |
+| --------------------- | -------- | ---------------------------------- |
+| `EC2_PUBLIC_IP`       | Variable | EC2 public IP used for nip.io URLs |
+| `AWS_EC2_USER`        | Variable | SSH username for EC2               |
+| `AWS_EC2_PRIVATE_KEY` | Secret   | SSH private key for EC2 access     |
+| `POSTGRES_USER`       | Variable | Database username                  |
+| `POSTGRES_PASSWORD`   | Secret   | Database password                  |
+| `GRAFANA_USER`        | Variable | Grafana login user                 |
+| `GRAFANA_PASSWORD`    | Secret   | Grafana login password             |
+| `JWT_SECRET`          | Secret   | Used for JWT signing in auth       |
+| `OPENAI_API_KEY`      | Secret   | Used by GenAI service              |
+| `KUBE_CONFIG`         | Secret   | kubeconfig for Rancher access      |
+| `GITHUB_TOKEN`        | Secret   | Used to authenticate with GHCR     |
+
+---
+
+## CI/CD Workflow Summary
+
+```mermaid
+graph TD
+    A[Push to GitHub] --> B[Run Tests]
+    B --> C[Build Docker Images]
+    C --> D[Push to GitHub Container Registry]
+    D --> E[Manual Deployment to EC2]
+    D --> F[Automatic Helm Deploy to Rancher]
+```
+
+---
 
 # Diagrams
 
 ![Use Case Diagram](./docs/UseCaseDiagram.png)
 Use Case Diagram
 
-
 ![Component Diagram](./docs/ComponentDiagram.png)
 Component Diagram
 
-
 ![Analysis Object Model](./docs/AnalysisObjectModel.png)
 Analysis Object Model
+
+---
 
 ## API Documentation (OpenAPI/Swagger)
 
 You can explore and test the API endpoints for each service using OpenAPI documentation:
 
-- **Authentication Service:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-- **Wheel-of-Life Service:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
-- **GenAI Service:** [http://localhost:5001/apidocs](http://localhost:5001/apidocs)
+* **Authentication Service:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+* **Wheel-of-Life Service:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
+* **GenAI Service:** [http://localhost:5001/apidocs](http://localhost:5001/apidocs)
 
+---
 
-## ⚙️ Getting Started (Local)
+## Getting Started (Local)
 
 1. Clone the repository and create a `.env` file using `.env.example` as a reference.
 2. Start the development environment:
@@ -172,14 +330,14 @@ docker-compose up --build
 
 3. Access the services:
 
-- Frontend: [http://localhost:5173](http://localhost:5173)
-- Wheel of Life Service: [http://localhost:8080](http://localhost:8080)
-- Authentication Service: [http://localhost:8081](http://localhost:8081)
-- GenAI Service: [http://localhost:5001](http://localhost:5001)
+* Frontend: [http://localhost:5173](http://localhost:5173)
+* Wheel of Life Service: [http://localhost:8080](http://localhost:8080)
+* Authentication Service: [http://localhost:8081](http://localhost:8081)
+* GenAI Service: [http://localhost:5001](http://localhost:5001)
 
 ---
 
-## 🌐 Deployment (AWS with Traefik)
+## Deployment (AWS with Traefik)
 
 For production deployment, use:
 
@@ -189,12 +347,12 @@ docker-compose -f compose-aws.yml up -d
 
 Make sure the following environment variables are configured:
 
-- `CLIENT_HOST`
-- `AUTH_HOST`
-- `GENAI_HOST`
-- `GRAFANA_HOST`
-- `JWT_SECRET`
-- `OPENAI_API_KEY`, etc.
+* `CLIENT_HOST`
+* `AUTH_HOST`
+* `GENAI_HOST`
+* `GRAFANA_HOST`
+* `JWT_SECRET`
+* `OPENAI_API_KEY`
 
 ---
 
@@ -202,11 +360,11 @@ Make sure the following environment variables are configured:
 
 Reference `.env.example` for required variables. Key ones include:
 
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-- `JWT_SECRET`
-- `VITE_SERVER_URL`, `VITE_AUTH_URL`, `VITE_GENAI_URL`
-- `OPENAI_API_KEY`, `OPENAI_MODEL`
-- `GRAFANA_USER`, `GRAFANA_PASSWORD`
+* `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+* `JWT_SECRET`
+* `VITE_SERVER_URL`, `VITE_AUTH_URL`, `VITE_GENAI_URL`
+* `OPENAI_API_KEY`, `OPENAI_MODEL`
+* `GRAFANA_USER`, `GRAFANA_PASSWORD`
 
 ---
 
@@ -217,7 +375,7 @@ Reference `.env.example` for required variables. Key ones include:
 ├── server/
 │   ├── wheel-of-life/       # Self-reflection microservice (Spring Boot)
 │   └── authentication/      # Auth microservice (Spring Boot)
-├── genai/                   # AI assistant backend (Node.js)
+├── genai/                   # AI assistant backend 
 ├── grafana/                 # Monitoring dashboards
 ├── prometheus/              # Prometheus config for scraping metrics
 ├── docker-compose.yml       # Local deployment
@@ -230,6 +388,7 @@ Reference `.env.example` for required variables. Key ones include:
 ## License
 
 Licensed under the MIT License.
+
 ---
 
 ## Authors
