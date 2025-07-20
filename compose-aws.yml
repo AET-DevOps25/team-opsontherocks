@@ -56,7 +56,6 @@ services:
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
     networks:
       - app-network
-      -
   prometheus:
     image: prom/prometheus:v2.48.0
     restart: unless-stopped
