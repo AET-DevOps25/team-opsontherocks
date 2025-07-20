@@ -22,7 +22,11 @@ from flasgger import Swagger
 from llm import generate_feedback_from_db, chat_response
 app = Flask(__name__)
 Swagger(app)
-CORS(app, resources={r"/*": {"origins": os.getenv('CLIENT_ORIGIN', 'http://localhost:5173')}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": [
+    "https://opsontherocks.student.k8s.aet.cit.tum.de",
+    "https://client.54.166.45.176.nip.io",
+    "http://localhost:5173"
+]}}, supports_credentials=True)
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = "HS512"  # Same as Spring

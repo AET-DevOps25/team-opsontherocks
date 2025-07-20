@@ -42,18 +42,16 @@ public class SecurityConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins(getClientOrigin())
+                .allowedOrigins(
+                    "https://opsontherocks.student.k8s.aet.cit.tum.de",
+                    "https://client.54.166.45.176.nip.io",
+                    "http://localhost:5173"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
                 .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
-
-    private String getClientOrigin() {
-        return System.getenv().getOrDefault("CLIENT_ORIGIN", "http://localhost:5173");
-    }
-
-
 
     /**
      * Bean for global CORS config, used by Spring Security.
@@ -61,7 +59,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(getClientOrigin()));
+        config.setAllowedOrigins(List.of(
+            "https://opsontherocks.student.k8s.aet.cit.tum.de",
+            "https://client.54.166.45.176.nip.io",
+            "http://localhost:5173"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));

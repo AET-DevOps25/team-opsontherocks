@@ -32,7 +32,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(getClientOrigin()));
+        config.setAllowedOrigins(List.of(
+            "https://opsontherocks.student.k8s.aet.cit.tum.de",
+            "https://client.54.166.45.176.nip.io",
+            "http://localhost:5173"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));
