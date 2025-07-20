@@ -165,6 +165,7 @@ services:
 volumes:
   db-data:
   grafana-data:
+  prometheus-data:
 
 networks:
   app-network:
