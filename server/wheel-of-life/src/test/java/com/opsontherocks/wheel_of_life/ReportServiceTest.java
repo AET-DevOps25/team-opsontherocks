@@ -2,13 +2,16 @@ package com.opsontherocks.wheel_of_life;
 
 //Unit tests the core business logic in the ReportService, including retrieval,
 // creation, update, and deletion of weekly reports.
+
 import com.opsontherocks.wheel_of_life.entity.Report;
 import com.opsontherocks.wheel_of_life.repository.ReportRepository;
 import com.opsontherocks.wheel_of_life.service.ReportService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,11 +20,17 @@ public class ReportServiceTest {
 
     private ReportService reportService;
     private ReportRepository reportRepository;
+    private MeterRegistry meterRegistry;
 
     @BeforeEach
     void setUp() {
         reportRepository = mock(ReportRepository.class);
-        reportService = new ReportService(reportRepository);
+        meterRegistry = mock(MeterRegistry.class);
+
+        // Optional: mock the counter if needed for verification
+        when(meterRegistry.counter(anyString())).thenReturn(mock(io.micrometer.core.instrument.Counter.class));
+
+        reportService = new ReportService(reportRepository, meterRegistry);
     }
 
     @Test
