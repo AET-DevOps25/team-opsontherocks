@@ -56,6 +56,29 @@ services:
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
     networks:
       - app-network
+      -
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`${PROMETHEUS_HOST}`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=letsencrypt"
+    networks:
+      - app-network
+
 
   authentication:
     image: ghcr.io/${GITHUB_REPOSITORY}/authentication:latest-ec2
