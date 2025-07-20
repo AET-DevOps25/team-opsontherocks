@@ -93,7 +93,7 @@
               #######################################
               GITHUB_REPOSITORY=${{ github.repository }}
               GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-              TAG=latest
+              TAG=latest-ec2
               SPRING_PROFILES_ACTIVE=prod
               EOF
         
@@ -103,7 +103,7 @@
           env:
             GITHUB_REPOSITORY: ${{ github.repository }}
             GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-            TAG: ${{ github.sha }}
+            TAG: latest-ec2
           with:
             host: ${{ vars.EC2_PUBLIC_IP }}
             username: ${{ vars.AWS_EC2_USER }}
