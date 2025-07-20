@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MainCategory } from "@/types/categories";
-import {WHEEL_URL} from "@/config/api";
 
 // Define the 4 main categories with their colors
 const PRESET_GROUPS = [
@@ -46,7 +45,7 @@ const RecentReportsGrid: React.FC<Props> = ({
     const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
     // API helper for fetching categories
-    const SERVER = WHEEL_URL;
+    const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
     const base = SERVER ? `${SERVER}/users/me/categories` : undefined;
     const api = useCallback(<T, >(path: string, opts: RequestInit = {}): Promise<T> => {
         if (!base) return Promise.reject(new Error('VITE_SERVER_URL not set')) as Promise<T>;

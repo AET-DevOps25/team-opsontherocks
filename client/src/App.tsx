@@ -7,9 +7,8 @@ import ReportPage from "@/pages/ReportPage";
 import { Report } from "@/hooks/useReports";
 import { CategoryValue } from "@/types/categories";
 import ResultsPage from "@/pages/ResultsPage";
-import {WHEEL_URL} from "@/config/api";
 
-const serverBase = WHEEL_URL;
+const serverBase = import.meta.env.VITE_SERVER_URL;
 
 // Helper function to convert report scores to CategoryValue format
 const convertReportToCategoryValues = (report: Report): CategoryValue[] => {
@@ -28,7 +27,6 @@ function AppRoutes() {
 
     const checkAuthStatus = async (): Promise<boolean> => {
         try {
-            console.log(`URL:${WHEEL_URL}`);
             console.log('[App] Checking /users/me with credentials...');
             const res = await fetch(`${serverBase}/users/me`, {
                 method: 'GET',
@@ -46,8 +44,6 @@ function AppRoutes() {
     useEffect(() => {
         let mounted = true;
         (async () => {
-            console.log('logging env variables')
-            console.log(`${WHEEL_URL}`)
             console.log('[App] Running initial auth check');
             const ok = await checkAuthStatus();
             if (mounted) setIsAuthenticated(ok);

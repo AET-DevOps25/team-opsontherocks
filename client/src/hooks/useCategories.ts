@@ -1,8 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {CategoryValue, MainCategory} from "@/types/categories";
-import {WHEEL_URL} from "@/config/api";
 
-const SERVER =WHEEL_URL;
+const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 const base = SERVER
     ? `${SERVER}/users/me/categories`
     : (() => {

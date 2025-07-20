@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: client
-  namespace: "opsontherocks"
 spec:
   replicas: {{ .Values.client.replicaCount }}
   selector:

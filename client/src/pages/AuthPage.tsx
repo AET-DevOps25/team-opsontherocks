@@ -2,8 +2,6 @@
 import {type FormEvent, useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {AUTH_URL} from "@/config/api";
-import {WHEEL_URL} from "@/config/api";
 
 import {
     Card,
@@ -23,8 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const authServer = AUTH_URL;
-const SERVER = WHEEL_URL;
+const authServer = import.meta.env.VITE_AUTH_URL;
+const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
 
 type AuthTab = "login" | "register";

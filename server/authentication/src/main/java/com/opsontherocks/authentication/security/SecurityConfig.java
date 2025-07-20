@@ -42,18 +42,15 @@ public class SecurityConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins(getAllowedOrigins().toArray(new String[0]))
+                .allowedOrigins(getClientOrigin())
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
                 .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
 
-    private List<String> getAllowedOrigins() {
-        return List.of(
-                "http://localhost:5173",
-                "https://opsontherocks.student.k8s.aet.cit.tum.de"
-        );
+    private String getClientOrigin() {
+        return System.getenv().getOrDefault("CLIENT_ORIGIN", "http://localhost:5173");
     }
 
 
@@ -64,7 +61,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(getAllowedOrigins());
+        config.setAllowedOrigins(List.of(getClientOrigin()));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));

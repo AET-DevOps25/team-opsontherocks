@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import {WHEEL_URL} from "@/config/api";
 
-const SERVER = WHEEL_URL;
+const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
 export interface Report {
     id: number;

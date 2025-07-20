@@ -14,14 +14,10 @@ client:
     type: ClusterIP
     port: 5173
     targetPort: 5173
-  ingress:
-    enabled: true
-    path: /
-    pathType: Prefix
   replicaCount: 1
   env:
     - name: VITE_SERVER_URL
-      value: https://opsontherocks.student.k8s.aet.cit.tum.de/wheel
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de
     - name: VITE_AUTH_URL
       value: https://opsontherocks.student.k8s.aet.cit.tum.de/auth
     - name: VITE_GENAI_URL
@@ -36,11 +32,6 @@ serverAuth:
     type: ClusterIP
     port: 8081
     targetPort: 8081
-  serverAuth:
-    ingress:
-      enabled: true
-      path: /auth
-      pathType: Prefix
   replicaCount: 1
   env:
     - name: SPRING_DATASOURCE_URL
@@ -65,7 +56,7 @@ serverAuth:
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
     - name: CORS_ALLOWED_ORIGINS
-      value: https://opsontherocks.student.k8s.aet.cit.tum.de/wheel
+      value: https://opsontherocks.student.k8s.aet.cit.tum.de
 
 
 serverWheel:
@@ -100,8 +91,6 @@ serverWheel:
       value: update
     - name: SPRING_JPA_SHOW_SQL
       value: "true"
-    - name: CORS_ALLOWED_ORIGINS
-      value: https://opsontherocks.student.k8s.aet.cit.tum.de
 
 genai:
   image:
@@ -113,11 +102,6 @@ genai:
     port: 5001
     targetPort: 5001
   replicaCount: 1
-  ingress:
-    enabled: true
-    path: /genai
-    pathType: Prefix
-
   env:
     - name: JWT_SECRET
       valueFrom:

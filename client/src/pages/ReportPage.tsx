@@ -9,10 +9,9 @@ import {WheelOfLifeRadar} from "@/components/WheelOfLifeRadar";
 import {getISOWeek} from "date-fns";
 import {CategoryValue} from "@/types/categories";
 import { useNavigate } from "react-router-dom";
-import {WHEEL_URL} from "@/config/api";
 
 
-const SERVER = WHEEL_URL;
+const SERVER = import.meta.env.VITE_SERVER_URL as string | undefined;
 
 interface ReportPageProps {
     initialData?: CategoryValue[];
